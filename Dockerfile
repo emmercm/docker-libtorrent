@@ -27,3 +27,7 @@ RUN set -euo pipefail && \
     cd && \
     apk del --purge .build-deps && \
     rm -rf /tmp/*
+
+RUN set -euo pipefail && \
+    apk add --no-cache coreutils && \
+    du -sh * | sort -h
