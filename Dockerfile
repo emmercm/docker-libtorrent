@@ -30,4 +30,4 @@ RUN set -euo pipefail && \
 
 RUN set -euo pipefail && \
     apk add --no-cache coreutils && \
-    du -sh * | sort -h
+    du -h * | sort -h | tail -r
