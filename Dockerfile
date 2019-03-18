@@ -1,3 +1,7 @@
+# Instructions on building libtorrent:
+#   https://github.com/qbittorrent/qBittorrent/wiki/Compiling-qBittorrent-on-Debian-and-Ubuntu#libtorrent
+#   https://discourse.osmc.tv/t/howto-update-compile-qbittorrent-nox/19726/3
+
 ARG BASE_IMAGE=alpine:latest
 
 FROM ${BASE_IMAGE}
@@ -15,8 +19,6 @@ RUN set -euo pipefail && \
     cd libtorrent && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
-    # https://github.com/qbittorrent/qBittorrent/wiki/Compiling-qBittorrent-on-Debian-and-Ubuntu#libtorrent
-    # https://discourse.osmc.tv/t/howto-update-compile-qbittorrent-nox/19726/3
     ./autotool.sh && \
     ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11 && \
     make clean && \
@@ -30,13 +32,15 @@ RUN set -euo pipefail && \
 
 # Test build
 RUN set -euo pipefail && \
+    apk --update add --no-cache --virtual test-dependencies musl-utils && \
     for FILE in $(find /usr/local/lib -name libtorrent-rasterbar.so*); do \
         for LIB in $(ldd "${FILE}" | awk '{print $3}'); do \
             if [[ ! -e "${LIB}" ]]; then \
                 echo "Missing library: ${LIB}" && exit 1 \
             ; fi \
         ; done \
-    ; done
+    ; done && \
+    apk del --purge test-dependencies && \
 
 # Debug
 RUN set -euo pipefail && \
