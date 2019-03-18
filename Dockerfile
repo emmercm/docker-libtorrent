@@ -34,8 +34,8 @@ RUN set -euo pipefail && \
     for FILE in $(find / -name /usr/local/lib/libtorrent-rasterbar.so*); do \
         for LIB in $(ldd "${FILE}" | awk '{print $3}'); do \
             echo ${LIB} \
-        done \
-    done && \
+        ; done \
+    ; done && \
     apk del --purge test-dependencies
 
 # Debug
