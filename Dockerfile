@@ -9,7 +9,7 @@ RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
     apk add --no-cache                       boost-system g++ gcc musl openssl && \
-    apk add --no-cache --virtual .build-deps autoconf automake boost-dev file g++ gcc git libtool make openssl-dev && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev file g++ gcc git libtool make openssl-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
@@ -25,10 +25,10 @@ RUN set -euo pipefail && \
     make install-strip && \
     # Remove intermediary files
     cd && \
-    apk del --purge .build-deps && \
+    apk del --purge build-dependencies && \
     rm -rf /tmp/*
 
 RUN set -euo pipefail && \
-    apk add --no-cache coreutils && \
+    apk --update add --no-cache coreutils && \
     for FILE in $(find / -name libtorrent-rasterbar.so*); do echo ${FILE} && ldd ${FILE}; done && \
     du -h * 2> /dev/null | sort -h | tac | head -10
