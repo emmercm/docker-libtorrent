@@ -13,7 +13,7 @@ RUN set -euo pipefail && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
-    git checkout $(git tag --sort=-version:refname | grep "${LIBTORRENT_VERSION}" | head -1) && \
+    git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     # https://github.com/qbittorrent/qBittorrent/wiki/Compiling-qBittorrent-on-Debian-and-Ubuntu#libtorrent
     # https://discourse.osmc.tv/t/howto-update-compile-qbittorrent-nox/19726/3
