@@ -25,24 +25,18 @@ RUN set -euo pipefail && \
     make -j$(nproc) && \
     make uninstall && \
     make install-strip && \
-    # Remove intermediary files
+    # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
-    rm -rf /tmp/*
-
-# Test build
-RUN set -euo pipefail && \
-    apk --update add --no-cache --virtual test-dependencies musl-utils && \
+    rm -rf /tmp/* && \
+    # Test build
+    if [[ "$(find /usr/local/lib -name libtorrent-rasterbar.so*)" == "" ]]; then \
+        echo "Failed to find /usr/local/lib/libtorrent-rasterbar.so*" >&2 && exit 1 \
+    ; fi && \
     for FILE in $(find /usr/local/lib -name libtorrent-rasterbar.so*); do \
-        for LIB in $(ldd "${FILE}" | awk '{print $3}'); do \
+        for LIB in $(ldd "${FILE}" | awk '{print $3}' | grep -v "^ldd$"); do \
             if [[ ! -e "${LIB}" ]]; then \
-                echo "Missing library: ${LIB}" && exit 1 \
+                echo "Missing library: ${LIB}" >&2 && exit 1 \
             ; fi \
         ; done \
-    ; done && \
-    apk del --purge test-dependencies && \
-
-# Debug
-RUN set -euo pipefail && \
-    apk --update add --no-cache coreutils && \
-    du -h * 2> /dev/null | sort -h | tac | head -10
+    ; done
