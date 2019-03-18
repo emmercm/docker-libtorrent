@@ -30,5 +30,5 @@ RUN set -euo pipefail && \
 
 RUN set -euo pipefail && \
     apk add --no-cache coreutils && \
-    find / -name libtorrent* && \
+    for FILE in $(find / -name libtorrent-rasterbar.so*); do ldd ${FILE}; done && \
     du -h * | sort -h | tac | head -10
