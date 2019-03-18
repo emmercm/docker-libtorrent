@@ -33,7 +33,9 @@ RUN set -euo pipefail && \
     apk --update add --no-cache --virtual test-dependencies findutils && \
     for FILE in $(find /usr/local/lib -name libtorrent-rasterbar.so*); do \
         for LIB in $(ldd "${FILE}" | awk '{print $3}'); do \
-            echo ${LIB} \
+            if [[ ! -e "${LIB}" ]]; then \
+                echo "Missing library: ${LIB}" && exit 1 \
+            ; fi \
         ; done \
     ; done && \
     apk del --purge test-dependencies
