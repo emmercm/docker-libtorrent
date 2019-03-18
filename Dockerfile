@@ -30,4 +30,5 @@ RUN set -euo pipefail && \
 
 RUN set -euo pipefail && \
     apk add --no-cache coreutils && \
-    du -h * | sort -h | tac
+    find / -name libtorrent* && \
+    du -h * | sort -h | tac | head -10
