@@ -48,7 +48,7 @@ jobs:
           command: |
             source /workspace/.env
             docker build --cache-from=${TAG} \
-              --build-arg BASE_IMAGE=${ARCHITECTURE}/${BASE_IMAGE} \
+              --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
               --tag ${TAG} .
       - run:
