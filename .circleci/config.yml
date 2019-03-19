@@ -86,6 +86,9 @@ jobs:
             docker image ls
             docker image ls --format "{{.Tag}}"
             docker image ls --format "{{.Tag}}" | sed 's/.*-//'
+            docker image ls ${IMAGE_NAME}
+            docker image ls --format "{{.Tag}}" ${IMAGE_NAME}
+            docker image ls --format "{{.Tag}}" ${IMAGE_NAME} | sed 's/.*-//'
 
 workflows:
   version: 2.1
