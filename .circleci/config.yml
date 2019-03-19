@@ -68,7 +68,7 @@ jobs:
       - persist_to_workspace:
           root: /workspace
           paths:
-            - images.tar
+            - "*"
 
   push:
     executor: docker
