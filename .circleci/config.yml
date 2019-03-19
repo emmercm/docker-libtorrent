@@ -85,9 +85,12 @@ jobs:
           name: Publish Docker Image
           command: |
             source /workspace/.env
-            echo "docker manifest create ${TAG} $(docker image ls --format "{{.Tag}}" ${REPO_NAME} | paste -sd ' ' -)"
-            for ARCHITECTURE in $(docker image ls --format "{{.Tag}}" ${REPO_NAME} | sed 's/.*-//' | paste -sd ' ' -); do
-              echo "docker manifest annotate ${TAG} ${TAG}-${ARCHITECTURE} --os linux --arch ${ARCHITECTURE}"
+            MANIFEST_LIST=${TAG}
+            docker manifest create ${MANIFEST_LIST} $(docker image ls --format "{{.Tag}}" ${REPO_NAME} | paste -sd ' ' -)
+            docker manifest inspect ${MANIFEST_LIST}
+            for MANIFEST in $(docker image ls --format "{{.Tag}}" ${REPO_NAME}); do
+              ARHICTECTURE=$(echo "${MANIFEST}" | sed 's/.*-//')
+              echo "docker manifest annotate ${TAG} ${MANIFEST} --os linux --arch ${ARCHITECTURE}"
             done
 
 workflows:
