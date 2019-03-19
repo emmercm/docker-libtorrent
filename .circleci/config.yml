@@ -54,7 +54,8 @@ jobs:
             docker build --cache-from=${TAG} \
               --build-arg BASE_IMAGE=${ARCHITECTURE}/${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
-              --tag ${TAG} .
+              --tag ${TAG}
+              --tag ${TAG}-i386 .
       - run:
           name: Save Docker Image(s) to Cache
           command: |
@@ -83,12 +84,9 @@ jobs:
       - run:
           name: Publish Docker Image
           command: |
-            docker image ls
-            docker image ls --format "{{.Tag}}"
-            docker image ls --format "{{.Tag}}" | sed 's/.*-//'
-            docker image ls ${IMAGE_NAME}
-            docker image ls --format "{{.Tag}}" ${IMAGE_NAME}
             docker image ls --format "{{.Tag}}" ${IMAGE_NAME} | sed 's/.*-//'
+            docker image ls --format "{{.Tag}}" ${IMAGE_NAME} | sed 's/.*-//' | paste -sd ' ' -
+            set
 
 workflows:
   version: 2.1
