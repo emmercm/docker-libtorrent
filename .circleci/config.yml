@@ -15,15 +15,12 @@ jobs:
     parameters:
       base_image:
         type: string
-      architecture:
-        type: string
       version:
         type: string
     executor: docker
     <<: *env
     environment:
       BASE_IMAGE: << parameters.base_image >>
-      ARCHITECTURE: << parameters.architecture >>
       _VERSION: << parameters.version >>
       REPO_NAME: emmercm/libtorrent
     steps:
@@ -50,12 +47,10 @@ jobs:
           name: Build Docker Image
           command: |
             source /workspace/.env
-            TAG=${TAG}-${ARCHITECTURE}
             docker build --cache-from=${TAG} \
               --build-arg BASE_IMAGE=${ARCHITECTURE}/${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
-              --tag ${TAG} \
-              --tag ${TAG}-i386 .
+              --tag ${TAG} .
       - run:
           name: Save Docker Image(s) to Cache
           command: |
@@ -85,12 +80,8 @@ jobs:
           name: Publish Docker Image
           command: |
             source /workspace/.env
-            MANIFEST_LIST=${TAG}
-            docker manifest create ${MANIFEST_LIST} $(docker image ls --format "{{.Tag}}" ${REPO_NAME} | paste -sd ' ' -)
-            docker manifest inspect ${MANIFEST_LIST}
-            for MANIFEST in $(docker image ls --format "{{.Tag}}" ${REPO_NAME}); do
-              ARHICTECTURE=$(echo "${MANIFEST}" | sed 's/.*-//')
-              echo "docker manifest annotate ${TAG} ${MANIFEST} --os linux --arch ${ARCHITECTURE}"
+            for TAG in $(docker image ls --format "{{.Tag}}" ${REPO_NAME}); do
+              echo ${TAG}
             done
 
 workflows:
@@ -99,7 +90,6 @@ workflows:
     jobs:
       - build:
           base_image: alpine:3.9
-          architecture: amd64
           version: 1.1.*
       
       - push:
