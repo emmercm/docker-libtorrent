@@ -36,6 +36,16 @@ jobs:
             mkdir -p /workspace
             echo "before"
             echo ${_VERSION}
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref'
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g'
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g'
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g'
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1 | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/"
+            curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1 | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g'
             VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1 | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
             echo "after"
             echo "export VERSION=${VERSION}" >> /workspace/.env
