@@ -1,5 +1,10 @@
 version: 2.1
 
+references:
+  env: &env
+    environment:
+      IMAGE_NAME: emmercm/libtorrent
+
 executors:
   docker:
     docker:
@@ -15,11 +20,11 @@ jobs:
       version:
         type: string
     executor: docker
+    <<: *env
     environment:
       BASE_IMAGE: << parameters.base_image >>
       ARCHITECTURE: << parameters.architecture >>
       _VERSION: << parameters.version >>
-      IMAGE_NAME: emmercm/libtorrent
     steps:
       - checkout
       - setup_remote_docker
@@ -27,21 +32,23 @@ jobs:
           name: Setup Environment Variables
           command: |
             apk add --no-cache coreutils curl jq
-            echo "export VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1 | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')" >> ${BASH_ENV}
+            VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1 | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
+            echo "export VERSION=${VERSION}" >> /workspace/.env
+            echo "export TAG=${IMAGE_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
       - restore_cache:
           keys:
             - v1-{{ .Branch }}
           paths:
-            - /cache/images.tar
+            - /workspace/images.tar
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            docker load --input /cache/images.tar || true
+            docker load --input /workspace/images.tar || true
       - run:
           name: Build Docker Image
           command: |
-            source ${BASH_ENV}
-            TAG=${IMAGE_NAME}:${VERSION}-${BASE_IMAGE//:/}
+            source /workspace/.env
+            TAG=${TAG}-${ARCHITECTURE}
             docker build --cache-from=${TAG} \
               --build-arg BASE_IMAGE=${ARCHITECTURE}/${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
@@ -49,32 +56,34 @@ jobs:
       - run:
           name: Save Docker Image(s) to Cache
           command: |
-            source ${BASH_ENV}
-            mkdir -p /cache
-            docker save --output /cache/images.tar ${IMAGE_NAME}
+            source /workspace/.env
+            mkdir -p /workspace
+            docker save --output /workspace/images.tar ${IMAGE_NAME}
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
-            - /cache/images.tar
+            - /workspace/images.tar
       - persist_to_workspace:
-          root: /cache
+          root: /workspace
           paths:
             - images.tar
 
   push:
     executor: docker
+    <<: *env
     steps:
       - attach_workspace:
-          at: /cache
+          at: /workspace
       - setup_remote_docker
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            docker load --input /cache/images.tar || true
+            docker load --input /workspace/images.tar || true
       - run:
           name: Publish Docker Image
           command: |
             docker image ls
+            docker image ls | sed 's/.*-//'
 
 workflows:
   version: 2.1
