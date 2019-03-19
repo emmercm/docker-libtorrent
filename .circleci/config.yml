@@ -36,6 +36,9 @@ jobs:
             mkdir -p /workspace
             VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1 | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
             echo "export VERSION=${VERSION}" >> /workspace/.env
+            echo ${IMAGE_NAME}
+            echo ${VERSION}
+            echo ${BASE_IMAGE}
             echo "export TAG=${IMAGE_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
       - restore_cache:
           keys:
