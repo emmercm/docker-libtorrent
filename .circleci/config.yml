@@ -34,7 +34,9 @@ jobs:
           command: |
             apk add --no-cache coreutils curl jq
             mkdir -p /workspace
+            echo "before"
             VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1 | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
+            echo "after"
             echo "export VERSION=${VERSION}" >> /workspace/.env
             echo ${IMAGE_NAME}
             echo ${VERSION}
