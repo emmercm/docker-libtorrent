@@ -83,6 +83,7 @@ jobs:
       - run:
           name: Publish Docker Image
           command: |
+            docker image ls
             docker image ls --format "{{.Tag}}"
             docker image ls --format "{{.Tag}}" | sed 's/.*-//'
 
