@@ -54,7 +54,7 @@ jobs:
             docker build --cache-from=${TAG} \
               --build-arg BASE_IMAGE=${ARCHITECTURE}/${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
-              --tag ${TAG}
+              --tag ${TAG} \
               --tag ${TAG}-i386 .
       - run:
           name: Save Docker Image(s) to Cache
