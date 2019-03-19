@@ -56,6 +56,7 @@ jobs:
             curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}" | (head -1 || true) | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/"
             echo 10
             curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}" | (head -1 || true) | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g'
+            echo 11
             VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | head -1 | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
             echo "after"
             echo "export VERSION=${VERSION}" >> /workspace/.env
