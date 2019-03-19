@@ -86,9 +86,9 @@ jobs:
           name: Publish Docker Image
           command: |
             source /workspace/.env
-            docker image ls
-            for TAG in $(docker image ls --format "{{.Tag}}" ${REPO_NAME}); do
-              echo ${TAG}
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" ${REPO_NAME}); do
+              docker push ${TAG}
             done
 
 workflows:
