@@ -84,6 +84,8 @@ jobs:
       - run:
           name: Publish Docker Image
           command: |
+            echo "IMAGE_NAME: ${IMAGE_NAME}"
+            echo "VERSION: ${VERSION}"
             docker image ls --format "{{.Tag}}" ${IMAGE_NAME} | sed 's/.*-//'
             docker image ls --format "{{.Tag}}" ${IMAGE_NAME} | sed 's/.*-//' | paste -sd ' ' -
             set
