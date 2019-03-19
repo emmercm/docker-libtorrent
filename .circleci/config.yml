@@ -25,6 +25,7 @@ jobs:
       BASE_IMAGE: << parameters.base_image >>
       ARCHITECTURE: << parameters.architecture >>
       _VERSION: << parameters.version >>
+      IMAGE_NAME: emmercm/libtorrent
     steps:
       - checkout
       - setup_remote_docker
