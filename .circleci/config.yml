@@ -3,7 +3,7 @@ version: 2.1
 references:
   env: &env
     environment:
-      IMAGE_NAME: emmercm/libtorrent
+      REPO_NAME: emmercm/libtorrent
 
 executors:
   docker:
@@ -25,7 +25,7 @@ jobs:
       BASE_IMAGE: << parameters.base_image >>
       ARCHITECTURE: << parameters.architecture >>
       _VERSION: << parameters.version >>
-      IMAGE_NAME: emmercm/libtorrent
+      REPO_NAME: emmercm/libtorrent
     steps:
       - checkout
       - setup_remote_docker
@@ -36,7 +36,7 @@ jobs:
             mkdir -p /workspace
             VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | (head -1 || true) | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
             echo "export VERSION=${VERSION}" >> /workspace/.env
-            echo "export TAG=${IMAGE_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
+            echo "export TAG=${REPO_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
       - restore_cache:
           keys:
             - v1-{{ .Branch }}
@@ -60,7 +60,7 @@ jobs:
           name: Save Docker Image(s) to Cache
           command: |
             source /workspace/.env
-            docker save --output /workspace/images.tar ${IMAGE_NAME}
+            docker save --output /workspace/images.tar ${REPO_NAME}
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
@@ -85,11 +85,10 @@ jobs:
           name: Publish Docker Image
           command: |
             source /workspace/.env
-            echo "IMAGE_NAME: ${IMAGE_NAME}"
-            echo "VERSION: ${VERSION}"
-            docker image ls --format "{{.Tag}}" ${IMAGE_NAME} | sed 's/.*-//'
-            docker image ls --format "{{.Tag}}" ${IMAGE_NAME} | sed 's/.*-//' | paste -sd ' ' -
-            set
+            echo "docker manifest create ${TAG} $(docker image ls --format "{{.Tag}}" ${REPO_NAME} | paste -sd ' ' -)"
+            for ARCHITECTURE in $(docker image ls --format "{{.Tag}}" ${REPO_NAME} | sed 's/.*-//' | paste -sd ' ' -); do
+              echo "docker manifest annotate ${TAG} ${TAG}-${ARCHITECTURE} --os linux --arch ${ARCHITECTURE}"
+            done
 
 workflows:
   version: 2.1
