@@ -88,7 +88,7 @@ jobs:
             source /workspace/.env
             docker image ls
             for TAG in $(docker image ls --format "{{.Tag}}" ${REPO_NAME}); do
-              echo ${BUILD_TAG}
+              echo ${TAG}
             done
 
 workflows:
