@@ -17,12 +17,15 @@ jobs:
         type: string
       version:
         type: string
+      tags:
+        type: string
     executor: docker
     <<: *env
     environment:
       BASE_IMAGE: << parameters.base_image >>
       _VERSION: << parameters.version >>
       REPO_NAME: emmercm/libtorrent
+      TAGS: << parameters.tags >>
     steps:
       - checkout
       - setup_remote_docker
@@ -33,7 +36,7 @@ jobs:
             mkdir -p /workspace
             VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | (head -1 || true) | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
             echo "export VERSION=${VERSION}" >> /workspace/.env
-            echo "export TAG=${REPO_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
+            echo "export BUILD_TAG=${REPO_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
       - restore_cache:
           keys:
             - v2-{{ .Branch }}
@@ -47,10 +50,13 @@ jobs:
           name: Build Docker Image
           command: |
             source /workspace/.env
-            docker build --cache-from=${TAG} \
+            docker build --cache-from=${BUILD_TAG} \
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
-              --tag ${TAG} .
+              --tag ${BUILD_TAG} .
+            for TAG in ${TAGS}; do
+              echo "docker tag ${BUILD_TAG} ${REPO_NAME}:${TAG}"
+            done
       - run:
           name: Save Docker Image(s) to Cache
           command: |
@@ -81,7 +87,7 @@ jobs:
           command: |
             source /workspace/.env
             for TAG in $(docker image ls --format "{{.Tag}}" ${REPO_NAME}); do
-              echo ${TAG}
+              echo ${BUILD_TAG}
             done
 
 workflows:
@@ -91,6 +97,7 @@ workflows:
       - build:
           base_image: alpine:3.9
           version: 1.1.*
+          tags: 1.1 latest
       
       - push:
           requires:
