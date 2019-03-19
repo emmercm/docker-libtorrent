@@ -36,7 +36,7 @@ jobs:
             echo "export TAG=${REPO_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
       - restore_cache:
           keys:
-            - v1-{{ .Branch }}
+            - v2-{{ .Branch }}
           paths:
             - /workspace/images.tar
       - run:
@@ -57,7 +57,7 @@ jobs:
             source /workspace/.env
             docker save --output /workspace/images.tar ${REPO_NAME}
       - save_cache:
-          key: v1-{{ .Branch }}-{{ epoch }}
+          key: v2-{{ .Branch }}-{{ epoch }}
           paths:
             - /workspace/images.tar
       - persist_to_workspace:
