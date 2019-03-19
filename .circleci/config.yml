@@ -35,11 +35,7 @@ jobs:
             apk add --no-cache coreutils curl jq
             mkdir -p /workspace
             VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | (head -1 || true) | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
-            echo "after"
             echo "export VERSION=${VERSION}" >> /workspace/.env
-            echo ${IMAGE_NAME}
-            echo ${VERSION}
-            echo ${BASE_IMAGE}
             echo "export TAG=${IMAGE_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
       - restore_cache:
           keys:
@@ -87,8 +83,8 @@ jobs:
       - run:
           name: Publish Docker Image
           command: |
-            docker image ls
-            docker image ls | sed 's/.*-//'
+            docker image ls --format "{{.Tag}}"
+            docker image ls --format "{{.Tag}}" | sed 's/.*-//'
 
 workflows:
   version: 2.1
