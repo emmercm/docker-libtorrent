@@ -55,7 +55,7 @@ jobs:
               --build-arg VERSION=${VERSION} \
               --tag ${BUILD_TAG} .
             for TAG in ${TAGS}; do
-              echo "docker tag ${BUILD_TAG} ${REPO_NAME}:${TAG}"
+              docker tag ${BUILD_TAG} ${REPO_NAME}:${TAG}
             done
       - run:
           name: Save Docker Image(s) to Cache
@@ -86,6 +86,7 @@ jobs:
           name: Publish Docker Image
           command: |
             source /workspace/.env
+            docker image ls
             for TAG in $(docker image ls --format "{{.Tag}}" ${REPO_NAME}); do
               echo ${BUILD_TAG}
             done
@@ -94,6 +95,7 @@ workflows:
   version: 2.1
   build-push:
     jobs:
+      # https://github.com/arvidn/libtorrent/releases
       - build:
           base_image: alpine:3.9
           version: 1.1.*
