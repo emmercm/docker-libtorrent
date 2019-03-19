@@ -36,7 +36,6 @@ jobs:
             mkdir -p /workspace
             VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | (head -1 || true) | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
             echo "export VERSION=${VERSION}" >> /workspace/.env
-            echo "export BUILD_TAG=${REPO_NAME}:${VERSION}-${BASE_IMAGE//:/}" >> /workspace/.env
       - restore_cache:
           keys:
             - v2-{{ .Branch }}
@@ -50,12 +49,13 @@ jobs:
           name: Build Docker Image
           command: |
             source /workspace/.env
-            docker build --cache-from=${BUILD_TAG} \
+            docker build --cache-from=${REPO_NAME}:${VERSION} \
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
-              --tag ${BUILD_TAG} .
+              --tag ${REPO_NAME}:${VERSION} \
+              --tag ${REPO_NAME}:${VERSION}-${BASE_IMAGE//:/} .
             for TAG in ${TAGS}; do
-              docker tag ${BUILD_TAG} ${REPO_NAME}:${TAG}
+              docker tag ${REPO_NAME}:${VERSION} ${REPO_NAME}:${TAG}
             done
       - run:
           name: Save Docker Image(s) to Cache
