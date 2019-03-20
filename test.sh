@@ -13,7 +13,7 @@ echo "Found libtorrent:"
 echo "${LIBTORRENT_SO}"
 
 
-SHARED_SO=$($(for FILE in "${LIBTORRENT_SO}"; do ldd "${FILE}" | awk '{print $3}' | grep -v "^ldd$"); done) | uniq -u)
+SHARED_SO=$($(for FILE in "${LIBTORRENT_SO}"; do ldd "${FILE}" | awk '{print $3}' | grep -v "^ldd$"; done) | uniq -u)
 
 for SO in "${SHARED_SO}"; do
     if [[ ! -e "${SO}" ]] ; then
