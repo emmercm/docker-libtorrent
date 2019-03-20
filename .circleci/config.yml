@@ -32,13 +32,15 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - v3-{{ .Branch }}
+            - v3-{{ .Branch }}-{{ .Revision }}
+            - v3-{{ .Branch }}-
+            - v3-
           paths:
-            - /workspace/images
+            - /cache
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            docker load --input /workspace/images/*.tar || true
+            docker load --input /cache/*.tar || true
       - run:
           name: Build Docker Image
           command: |
@@ -53,12 +55,12 @@ jobs:
       - run:
           name: Save Docker Image(s) to Cache
           command: |
-            mkdir -p /workspace/images
-            docker save --output /workspace/images/${VERSION}.tar ${REPO_NAME}
+            mkdir /cache
+            docker save --output /cache/${VERSION}.tar ${REPO_NAME}
       - save_cache:
           key: v3-{{ .Branch }}-{{ .Revision }}
           paths:
-            - /workspace/images
+            - /cache
       - persist_to_workspace:
           root: /workspace
           paths:
@@ -75,7 +77,7 @@ jobs:
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            docker load --input /workspace/images/*.tar || true
+            docker load --input /cache/*.tar || true
       - run:
           name: Publish Docker Image
           command: |
@@ -128,7 +130,13 @@ workflows:
       - push:
           requires:
             - 1.1.12
+          filters:
+            branches:
+              only: master
 
       - update-description:
           requires:
             - push
+          filters:
+            branches:
+              only: master
