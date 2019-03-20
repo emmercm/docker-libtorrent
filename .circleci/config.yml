@@ -110,6 +110,13 @@ jobs:
             echo "jq --null-input --arg FULL_DESCRIPTION $(cat README.md)"
             jq --null-input --arg FULL_DESCRIPTION "$(cat README.md)"
             echo ${FULL_DESCRIPTION}
+
+            FULL_DESCRIPTION=$(cat README.md)
+            echo "${FULL_DESCRIPTION}"
+            DESCRIPTION=$(echo "${FULL_DESCRIPTION}" | sed '/^ *$/d' | sed '/^ *#/d')
+            echo "${DESCRIPTION}"
+            jq --null-input --arg SHORT "${DESCRIPTION}" --arg FULL "${FULL_DESCRIPTION}" '{"description":$SHORT, "full_description":$FULL}'
+
             curl --request PATCH https://hub.docker.com/v2/repositories/${REPO_NAME} \
               --header "Content-Type: application/json" \
               --header "Authorization: JWT ${TOKEN}" \
