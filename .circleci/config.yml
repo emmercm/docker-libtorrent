@@ -24,19 +24,12 @@ jobs:
     executor: docker
     environment:
       BASE_IMAGE: << parameters.base_image >>
-      _VERSION: << parameters.version >>
+      VERSION: << parameters.version >>
       TAGS: << parameters.tags >>
       <<: *environment
     steps:
       - checkout
       - setup_remote_docker
-      - run:
-          name: Setup Environment Variables
-          command: |
-            apk add --no-cache coreutils curl jq
-            mkdir -p /workspace
-            VERSION=$(curl --silent https://api.github.com/repos/arvidn/libtorrent/git/refs/tags | jq '.[] .ref' | sed 's/"//g' | sed 's/refs\/tags\///g' | sed 's/-/_/g' | sort --version-sort --reverse | grep "${_VERSION}"  | (head -1 || true) | sed -r "s/.*[^0-9]([0-9]+[^0-9][0-9]+[^0-9][0-9]+)$/\1/" | sed 's/_/./g')
-            echo "export VERSION=${VERSION}" >> /workspace/.env
       - restore_cache:
           keys:
             - v3-{{ .Branch }}
@@ -49,7 +42,6 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            source /workspace/.env
             docker build --cache-from=${REPO_NAME}:${VERSION} \
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
@@ -61,7 +53,6 @@ jobs:
       - run:
           name: Save Docker Image(s) to Cache
           command: |
-            source /workspace/.env
             docker save --output /workspace/images/${VERSION}.tar ${REPO_NAME}
       - save_cache:
           key: v3-{{ .Branch }}-{{ .Revision }}
@@ -87,7 +78,6 @@ jobs:
       - run:
           name: Publish Docker Image
           command: |
-            source /workspace/.env
             echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
             for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" ${REPO_NAME}); do
               docker push ${TAG}
@@ -104,7 +94,6 @@ jobs:
       - run:
           name: Update Docker Hub Description
           command: |
-            source /workspace/.env
             apk add --no-cache curl jq
             TOKEN=$(curl \
               --silent \
