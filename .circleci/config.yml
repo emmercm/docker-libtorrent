@@ -19,6 +19,7 @@ jobs:
         type: string
       tags:
         type: string
+        default: ''
     executor: docker
     <<: *env
     environment:
