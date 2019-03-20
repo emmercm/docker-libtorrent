@@ -21,11 +21,11 @@ jobs:
         type: string
         default: ''
     executor: docker
-    <<: *env
     environment:
       BASE_IMAGE: << parameters.base_image >>
       _VERSION: << parameters.version >>
       TAGS: << parameters.tags >>
+    <<: *env
     steps:
       - checkout
       - setup_remote_docker
