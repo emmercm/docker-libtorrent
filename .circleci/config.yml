@@ -1,0 +1,145 @@
+version: 2.1
+
+references:
+  environment: &environment
+    REPO_NAME: emmercm/libtorrent
+  alpine: &alpine
+    base_image: alpine:3.9
+
+executors:
+  docker:
+    docker:
+      - image: docker:stable
+
+jobs:
+  build:
+    parameters:
+      base_image:
+        type: string
+      version:
+        type: string
+      tags:
+        type: string
+        default: ''
+    executor: docker
+    environment:
+      BASE_IMAGE: << parameters.base_image >>
+      VERSION: << parameters.version >>
+      TAGS: << parameters.tags >>
+      <<: *environment
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - v3-{{ .Branch }}-{{ .Revision }}
+            - v3-{{ .Branch }}-
+            - v3-
+          paths:
+            - /cache
+      - run:
+          name: Load Docker Image(s) from Cache
+          command: |
+            docker load --input /cache/*.tar || true
+      - run:
+          name: Build Docker Image
+          command: |
+            docker pull ${REPO_NAME}:${VERSION} || true
+            docker build \
+              --cache-from=${REPO_NAME}:${VERSION} \
+              --build-arg BASE_IMAGE=${BASE_IMAGE} \
+              --build-arg VERSION=${VERSION} \
+              --tag ${REPO_NAME}:${VERSION} \
+              --tag ${REPO_NAME}:${VERSION}-${BASE_IMAGE%:*} .
+            for TAG in ${TAGS}; do
+              docker tag ${REPO_NAME}:${VERSION} ${REPO_NAME}:${TAG}
+            done
+      - run:
+          name: Save Docker Image(s) to Cache
+          command: |
+            if [[ ! -e /cache ]]; then
+              mkdir /cache
+            fi
+            docker save --output /cache/${VERSION}.tar ${REPO_NAME}
+      - save_cache:
+          key: v3-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - /cache
+      - persist_to_workspace:
+          root: /cache
+          paths:
+            - "*"
+
+  push:
+    executor: docker
+    environment:
+      <<: *environment
+    steps:
+      - attach_workspace:
+          at: /cache
+      - setup_remote_docker
+      - run:
+          name: Load Docker Image(s) from Cache
+          command: |
+            docker load --input /cache/*.tar || true
+      - run:
+          name: Publish Docker Image
+          command: |
+            echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+            for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" ${REPO_NAME}); do
+              docker push ${TAG}
+            done
+
+  update-description:
+    executor: docker
+    environment:
+      <<: *environment
+    steps:
+      - checkout
+      - run:
+          name: Update Docker Hub Description
+          command: |
+            apk add --no-cache curl jq
+            TOKEN=$(curl \
+              --silent \
+              --request POST \
+              https://hub.docker.com/v2/users/login/ \
+              --header "Content-Type: application/json" \
+              --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | \
+              jq -r .token)
+            jq \
+              --null-input \
+              --arg DESCRIPTION "$(cat README.md | grep '^\w' | head -1)" \
+              --arg FULL_DESCRIPTION "$(cat README.md)" \
+              '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}' | \
+              curl \
+                --request PATCH \
+                https://hub.docker.com/v2/repositories/${REPO_NAME}/ \
+                --header "Content-Type: application/json" \
+                --header "Authorization: JWT ${TOKEN}" \
+                --data @-
+
+workflows:
+  version: 2.1
+  build-push:
+    jobs:
+      # https://github.com/arvidn/libtorrent/releases
+      - build:
+          name: 1.1.12
+          <<: *alpine
+          version: 1.1.12
+          tags: 1.1 1.1-alpine 1 1-alpine latest
+      
+      - push:
+          requires:
+            - 1.1.12
+          filters:
+            branches:
+              only: master
+
+      - update-description:
+          requires:
+            - push
+          filters:
+            branches:
+              only: master
