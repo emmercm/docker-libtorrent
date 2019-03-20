@@ -103,7 +103,10 @@ jobs:
           command: |
             source /workspace/.env
             apk add --no-cache curl jq
-            TOKEN=$(curl --request POST https://hub.docker.com/v2/users/login \
+            TOKEN=$(curl \
+              --silent \
+              --request POST \
+              https://hub.docker.com/v2/users/login \
               --header "Content-Type: application/json" \
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | \
               jq -r .token)
@@ -112,7 +115,11 @@ jobs:
               --arg DESCRIPTION "$(cat README.md)" \
               --arg FULL_DESCRIPTION "$(cat README.md | sed '/^ *$/d' | sed '/^ *#/d')" \
               '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}' | \
-              curl --request PATCH https://hub.docker.com/v2/repositories/${REPO_NAME} \
+              curl \
+                --silent \
+                --location \
+                --request PATCH \
+                https://hub.docker.com/v2/repositories/${REPO_NAME} \
                 --header "Content-Type: application/json" \
                 --header "Authorization: JWT ${TOKEN}" \
                 --data @-
