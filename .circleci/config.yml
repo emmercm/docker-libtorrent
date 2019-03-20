@@ -129,7 +129,7 @@ workflows:
           tags: 1.1 1.1-alpine 1 1-alpine latest
       - build:
           name: 1.0.11
-          base_image: alpine:3.8
+          base_image: alpine:3.7
           version: 1.0.11
           tags: 1.0 1.0-alpine
       
