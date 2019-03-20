@@ -57,7 +57,9 @@ jobs:
       - run:
           name: Save Docker Image(s) to Cache
           command: |
-            mkdir /cache
+            if [[ ! -e /cache ]]; then
+              mkdir /cache
+            fi
             docker save --output /cache/${VERSION}.tar ${REPO_NAME}
       - save_cache:
           key: v3-{{ .Branch }}-{{ .Revision }}
