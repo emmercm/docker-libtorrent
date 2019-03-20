@@ -107,8 +107,8 @@ jobs:
               --header "Content-Type: application/json" \
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | jq -r .token)
             echo "$(<README.md)"
-            echo "jq --null-input --arg FULL_DESCRIPTION $(<README.md)"
-            jq --null-input --arg FULL_DESCRIPTION "$(<README.md)"
+            echo "jq --null-input --arg FULL_DESCRIPTION $(cat README.md)"
+            jq --null-input --arg FULL_DESCRIPTION "$(cat README.md)"
             echo ${FULL_DESCRIPTION}
             curl --request PATCH https://hub.docker.com/v2/repositories/${REPO_NAME} \
               --header "Content-Type: application/json" \
