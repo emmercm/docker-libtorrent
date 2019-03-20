@@ -103,16 +103,16 @@ jobs:
           command: |
             source /workspace/.env
             apk add --no-cache curl jq
-            echo '{"username":"${DOCKERHUB_USERNAME}", "password":"..."}'
-            JWT=$(curl --request POST https://hub.docker.com/v2/users/login \
+            echo '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"..."}'
+            TOKEN=$(curl --request POST https://hub.docker.com/v2/users/login \
               --header "Content-Type: application/json" \
-              --data '{"username":"${DOCKERHUB_USERNAME}", "password":"${DOCKERHUB_PASS}"}')
-            echo ${JWT}
+              --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | jq -r .token)
+            echo ${TOKEN}
             jq -n --arg FULL_DESCRIPTION "$(<README.md)"
             echo ${FULL_DESCRIPTION}
             curl --request PATCH https://hub.docker.com/v2/repositories/${REPO_NAME} \
               --header "Content-Type: application/json" \
-              --header "Authorization: JWT ${JWT}" \
+              --header "Authorization: JWT ${TOKEN}" \
               --data '{"full_description":${FULL_DESCRIPTION}}'
 
 workflows:
