@@ -111,7 +111,7 @@ jobs:
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | \
               jq -r .token)
             jq --null-input \
-              --arg DESCRIPTION "$(cat README.md | sed '/^ *$/d' | sed '/^ *#/d')" \
+              --arg DESCRIPTION "$(cat README.md | grep '^\w' | head -1)" \
               --arg FULL_DESCRIPTION "$(cat README.md)" \
               '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}' | \
               curl \
