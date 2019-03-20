@@ -25,7 +25,6 @@ jobs:
     environment:
       BASE_IMAGE: << parameters.base_image >>
       _VERSION: << parameters.version >>
-      REPO_NAME: emmercm/libtorrent
       TAGS: << parameters.tags >>
     steps:
       - checkout
@@ -128,24 +127,14 @@ workflows:
     jobs:
       # https://github.com/arvidn/libtorrent/releases
       - build:
-          name: 1.1.*
-          base_image: alpine:3.9
-          version: 1.1.*
-          tags: 1.1 1.1-alpine 1 1-alpine latest
-      - build:
           name: 1.1.12
           base_image: alpine:3.9
           version: 1.1.12
-      - build:
-          name: 1.1.11
-          base_image: alpine:3.9
-          version: 1.1.11
+          tags: 1.1 1.1-alpine 1 1-alpine latest
       
       - push:
           requires:
-            - 1.1.*
             - 1.1.12
-            - 1.1.11
 
       - update-description:
           requires:
