@@ -22,7 +22,7 @@ RUN set -euo pipefail && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
-    ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11 && \
+    ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS="-std=c++11 -Wdeprecated-declarations" && \
     make clean && \
     make -j$(nproc) && \
     make uninstall && \

@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -euo pipefail
+set -euxo pipefail
 
 
 LIBTORRENT_SO=$(find /usr/local/lib -name libtorrent-rasterbar.so*)
