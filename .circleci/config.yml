@@ -45,7 +45,8 @@ jobs:
           name: Build Docker Image
           command: |
             docker pull ${REPO_NAME}:${VERSION} || true
-            docker build --cache-from=${REPO_NAME}:${VERSION} \
+            docker build \
+              --cache-from=${REPO_NAME}:${VERSION} \
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
               --tag ${REPO_NAME}:${VERSION} \
@@ -106,7 +107,8 @@ jobs:
               --header "Content-Type: application/json" \
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | \
               jq -r .token)
-            jq --null-input \
+            jq \
+              --null-input \
               --arg DESCRIPTION "$(cat README.md | grep '^\w' | head -1)" \
               --arg FULL_DESCRIPTION "$(cat README.md)" \
               '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}' | \
