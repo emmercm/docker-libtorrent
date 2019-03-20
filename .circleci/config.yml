@@ -111,6 +111,7 @@ jobs:
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | \
               jq -r .token)
 
+            echo "${TOKEN}"
             jq --null-input \
               --arg DESCRIPTION "$(cat README.md)" \
               --arg FULL_DESCRIPTION "$(cat README.md | sed '/^ *$/d' | sed '/^ *#/d')" \
@@ -118,6 +119,7 @@ jobs:
               curl \
                 --silent \
                 --location \
+                --write-out "%{http_code}"
                 --request PATCH \
                 https://hub.docker.com/v2/repositories/${REPO_NAME} \
                 --header "Content-Type: application/json" \
