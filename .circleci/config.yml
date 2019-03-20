@@ -38,7 +38,7 @@ jobs:
             echo "export VERSION=${VERSION}" >> /workspace/.env
       - restore_cache:
           keys:
-            - v2-{{ .Branch }}
+            - v3-{{ .Branch }}
           paths:
             - /workspace/images.tar
       - run:
@@ -63,7 +63,7 @@ jobs:
             source /workspace/.env
             docker save --output /workspace/images.tar ${REPO_NAME}
       - save_cache:
-          key: v2-{{ .Branch }}-{{ epoch }}
+          key: v3-{{ .Branch }}-{{ epoch }}
           paths:
             - /workspace/images.tar
       - persist_to_workspace:
