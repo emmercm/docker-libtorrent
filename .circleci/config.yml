@@ -66,7 +66,7 @@ jobs:
           paths:
             - /cache
       - persist_to_workspace:
-          root: /workspace
+          root: /cache
           paths:
             - "*"
 
@@ -76,7 +76,7 @@ jobs:
       <<: *environment
     steps:
       - attach_workspace:
-          at: /workspace
+          at: /cache
       - setup_remote_docker
       - run:
           name: Load Docker Image(s) from Cache
@@ -95,8 +95,6 @@ jobs:
     environment:
       <<: *environment
     steps:
-      - attach_workspace:
-          at: /workspace
       - checkout
       - run:
           name: Update Docker Hub Description
