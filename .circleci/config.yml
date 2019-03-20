@@ -107,11 +107,10 @@ jobs:
               --header "Content-Type: application/json" \
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | jq -r .token)
 
-            FULL_DESCRIPTION=$(cat README.md)
-            echo "${FULL_DESCRIPTION}"
-            DESCRIPTION=$(echo "${FULL_DESCRIPTION}" | sed '/^ *$/d' | sed '/^ *#/d')
-            echo "${DESCRIPTION}"
-            jq --null-input --arg SHORT "${DESCRIPTION}" --arg FULL "${FULL_DESCRIPTION}" '{"description":$SHORT, "full_description":$FULL}'
+            jq --null-input \
+              --arg DESCRIPTION "$(cat README.md)" \
+              --arg FULL_DESCRIPTION "$(cat README.md}" | sed '/^ *$/d' | sed '/^ *#/d')" \
+              '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}'
 
             curl --request PATCH https://hub.docker.com/v2/repositories/${REPO_NAME} \
               --header "Content-Type: application/json" \
