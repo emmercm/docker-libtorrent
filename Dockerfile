@@ -15,7 +15,7 @@ RUN set -euo pipefail && \
     BOOST_VERSION="" && \
     if [[ "$(echo ${VERSION} | grep 1\.0\.)" != "" ]]; then \
         BOOST_VERSION="=1.65.1" \
-    ;fi \
+    ;fi && \
     apk --update add --no-cache                              boost-system${BOOST_VERSION} libcrypto1.1 libgcc libssl1.1 libstdc++ && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev${BOOST_VERSION} file g++ gcc geoip-dev git libtool make openssl-dev && \
     # Checkout from source
