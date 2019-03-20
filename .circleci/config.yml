@@ -103,6 +103,7 @@ jobs:
           command: |
             source /workspace/.env
             apk add --no-cache curl jq
+            echo '{"username":"${DOCKERHUB_USERNAME}", "password":"..."}'
             JWT=$(curl --request POST https://hub.docker.com/v2/users/login \
               --header "Content-Type: application/json" \
               --data '{"username":"${DOCKERHUB_USERNAME}", "password":"${DOCKERHUB_PASS}"}')
