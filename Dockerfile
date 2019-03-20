@@ -8,11 +8,13 @@ FROM ${BASE_IMAGE}
 
 ARG VERSION=.
 
+COPY test.sh /
+
 # Build libtorrent-rasterbar[-dev]
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              boost-system geopip libgcc libstdc++ openssl && \
+    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev file g++ gcc geoip-dev git libtool make openssl-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
@@ -30,13 +32,4 @@ RUN set -euo pipefail && \
     apk del --purge build-dependencies && \
     rm -rf /tmp/* && \
     # Test build
-    if [[ "$(find /usr/local/lib -name libtorrent-rasterbar.so*)" == "" ]]; then \
-        echo "Failed to find /usr/local/lib/libtorrent-rasterbar.so*" >&2 && exit 1 \
-    ;fi && \
-    for FILE in $(find /usr/local/lib -name libtorrent-rasterbar.so*); do \
-        for LIB in $(ldd "${FILE}" | awk '{print $3}' | grep -v "^ldd$"); do \
-            if [[ ! -e "${LIB}" ]]; then \
-                echo "Missing library: ${LIB}" >&2 && exit 1 \
-            ;fi \
-        ;done \
-    ;done
+    /test.sh
