@@ -53,6 +53,7 @@ jobs:
       - run:
           name: Save Docker Image(s) to Cache
           command: |
+            mkdir -p /workspace/images
             docker save --output /workspace/images/${VERSION}.tar ${REPO_NAME}
       - save_cache:
           key: v3-{{ .Branch }}-{{ .Revision }}
