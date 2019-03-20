@@ -44,6 +44,7 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
+            docker pull ${REPO_NAME}:${VERSION} || true
             docker build --cache-from=${REPO_NAME}:${VERSION} \
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
