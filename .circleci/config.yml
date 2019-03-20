@@ -106,7 +106,6 @@ jobs:
             TOKEN=$(curl --request POST https://hub.docker.com/v2/users/login \
               --header "Content-Type: application/json" \
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | jq -r .token)
-            man jq
             ls -al
             echo "jq --null-input --arg FULL_DESCRIPTION $(cat README.md)"
             jq --null-input --arg FULL_DESCRIPTION "$(cat README.md)"
