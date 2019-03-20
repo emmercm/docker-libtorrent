@@ -86,10 +86,33 @@ jobs:
           name: Publish Docker Image
           command: |
             source /workspace/.env
-            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
             for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" ${REPO_NAME}); do
               docker push ${TAG}
             done
+
+  update-description:
+    executor: docker
+    <<: *env
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - checkout
+      - run:
+          name: Update Docker Hub Description
+          command: |
+            source /workspace/.env
+            apk add --no-cache curl jq
+            JWT=$(curl --request POST https://hub.docker.com/v2/users/login \
+              --header "Content-Type: application/json" \
+              --data '{"username":"${DOCKERHUB_USERNAME}", "password":"${DOCKERHUB_PASS}"}')
+            echo ${JWT}
+            jq -n --arg FULL_DESCRIPTION "$(<README.md)"
+            echo ${FULL_DESCRIPTION}
+            curl --request PATCH https://hub.docker.com/v2/repositories/${REPO_NAME} \
+              --header "Content-Type: application/json" \
+              --header "Authorization: JWT ${JWT}" \
+              --data '{"full_description":${FULL_DESCRIPTION}}'
 
 workflows:
   version: 2.1
@@ -104,3 +127,7 @@ workflows:
       - push:
           requires:
             - build
+
+      - update-description:
+          requires:
+            - push
