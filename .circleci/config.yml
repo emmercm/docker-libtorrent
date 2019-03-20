@@ -119,8 +119,7 @@ jobs:
                 https://hub.docker.com/v2/repositories/${REPO_NAME}/ \
                 --header "Content-Type: application/json" \
                 --header "Authorization: JWT ${TOKEN}" \
-                --data @- \
-                --write-out "%{http_code}"
+                --data @-
 
 workflows:
   version: 2.1
@@ -131,6 +130,12 @@ workflows:
           base_image: alpine:3.9
           version: 1.1.*
           tags: 1.1 1.1-alpine 1 1-alpine latest
+      - build:
+          base_image: alpine:3.9
+          version: 1.1.12
+      - build:
+          base_image: alpine:3.9
+          version: 1.1.11
       
       - push:
           requires:

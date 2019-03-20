@@ -3,7 +3,7 @@
 [![](https://badgen.net/circleci/github/emmercm/docker-libtorrent?icon=circleci)](https://github.com/emmercm/docker-libtorrent)
 [![](https://badgen.net/github/license/emmercm/docker-libtorrent?color=grey)](https://github.com/emmercm/docker-libtorrent/blob/master/LICENSE)
 
-libtorrent base images.
+Unofficial libtorrent base images.
 
 # Supported tags
 
