@@ -64,7 +64,7 @@ jobs:
             source /workspace/.env
             docker save --output /workspace/images/${VERSION}.tar ${REPO_NAME}
       - save_cache:
-          key: v3-{{ .Branch }}-{{ epoch }}
+          key: v3-{{ .Branch }}-{{ .Revision }}
           paths:
             - /workspace/images
       - persist_to_workspace:
