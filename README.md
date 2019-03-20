@@ -8,3 +8,4 @@ Unofficial libtorrent base images.
 # Supported tags
 
 - `1.1.12`, `1.1.12-alpine`, `1.1`, `1.1-alpine`, `1`, `1-alpine`, `latest`
+- `1.1.11`, `1.1.11-alpine`
