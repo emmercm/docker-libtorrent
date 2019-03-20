@@ -107,6 +107,7 @@ jobs:
               --silent \
               --request POST \
               https://hub.docker.com/v2/users/login \
+              --location \
               --header "Content-Type: application/json" \
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | \
               jq -r .token)
@@ -118,13 +119,13 @@ jobs:
               '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}' | \
               curl \
                 --silent \
-                --location \
-                --write-out "%{http_code}"
                 --request PATCH \
                 https://hub.docker.com/v2/repositories/${REPO_NAME} \
+                --location \
                 --header "Content-Type: application/json" \
                 --header "Authorization: JWT ${TOKEN}" \
-                --data @-
+                --data @- \
+                --write-out "%{http_code}"
 
 workflows:
   version: 2.1
