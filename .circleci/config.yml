@@ -53,7 +53,7 @@ jobs:
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
               --tag ${REPO_NAME}:${VERSION} \
-              --tag ${REPO_NAME}:${VERSION}-${BASE_IMAGE//:/} .
+              --tag ${REPO_NAME}:${VERSION}-${BASE_IMAGE%:*} .
             for TAG in ${TAGS}; do
               docker tag ${REPO_NAME}:${VERSION} ${REPO_NAME}:${TAG}
             done
@@ -130,7 +130,7 @@ workflows:
       - build:
           base_image: alpine:3.9
           version: 1.1.*
-          tags: 1.1 latest
+          tags: 1.1 1.1-alpine 1 1-alpine
       
       - push:
           requires:
