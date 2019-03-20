@@ -13,7 +13,7 @@ RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
     BOOST_VERSION="" && \
-    if [[ "$(echo "${VERSION}" | grep "1\.0\.")" != "" ]]; then \
+    if [[ "$(echo ${VERSION} | grep 1\.0\.)" != "" ]]; then \
         BOOST_VERSION="=1.65.1" \
     ;fi \
     apk --update add --no-cache                              boost-system${BOOST_VERSION} libcrypto1.1 libgcc libssl1.1 libstdc++ && \
