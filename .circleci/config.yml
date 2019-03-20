@@ -130,7 +130,7 @@ workflows:
       - build:
           base_image: alpine:3.9
           version: 1.1.*
-          tags: 1.1 1.1-alpine 1 1-alpine
+          tags: 1.1 1.1-alpine 1 1-alpine latest
       
       - push:
           requires:
