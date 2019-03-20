@@ -107,12 +107,13 @@ jobs:
               --silent \
               --request POST \
               https://hub.docker.com/v2/users/login \
-              --location \
               --header "Content-Type: application/json" \
               --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | \
               jq -r .token)
-
-            echo "${TOKEN}"
+            jq --null-input \
+              --arg DESCRIPTION "$(cat README.md)" \
+              --arg FULL_DESCRIPTION "$(cat README.md | sed '/^ *$/d' | sed '/^ *#/d')" \
+              '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}'
             jq --null-input \
               --arg DESCRIPTION "$(cat README.md)" \
               --arg FULL_DESCRIPTION "$(cat README.md | sed '/^ *$/d' | sed '/^ *#/d')" \
@@ -120,7 +121,6 @@ jobs:
               curl \
                 --request PATCH \
                 https://hub.docker.com/v2/repositories/${REPO_NAME} \
-                --location \
                 --header "Content-Type: application/json" \
                 --header "Authorization: JWT ${TOKEN}" \
                 --data @- \
