@@ -118,7 +118,6 @@ jobs:
               --arg FULL_DESCRIPTION "$(cat README.md | sed '/^ *$/d' | sed '/^ *#/d')" \
               '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}' | \
               curl \
-                --silent \
                 --request PATCH \
                 https://hub.docker.com/v2/repositories/${REPO_NAME} \
                 --location \
