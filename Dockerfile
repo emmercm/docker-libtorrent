@@ -13,11 +13,11 @@ RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
     BOOST_VERSION="" && \
-    if [[ "${VERSION} | grep '1\.0\.'" != "" ]]; then \
+    if [[ "echo ${VERSION} | grep '1\.0\.'" != "" ]]; then \
         BOOST_VERSION="=1.65.1" \
-    ; fi \
-    apk --update add --no-cache                              "boost-system${BOOST_VERSION}" libcrypto1.1 libgcc libssl1.1 libstdc++ && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake "boost-dev${BOOST_VERSION}" file g++ gcc geoip-dev git libtool make openssl-dev && \
+    ;fi \
+    apk --update add --no-cache                              boost-system${BOOST_VERSION} libcrypto1.1 libgcc libssl1.1 libstdc++ && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev${BOOST_VERSION} file g++ gcc geoip-dev git libtool make openssl-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
@@ -36,11 +36,11 @@ RUN set -euo pipefail && \
     # Test build
     if [[ "$(find /usr/local/lib -name libtorrent-rasterbar.so*)" == "" ]]; then \
         echo "Failed to find /usr/local/lib/libtorrent-rasterbar.so*" >&2 && exit 1 \
-    ; fi && \
+    ;fi && \
     for FILE in $(find /usr/local/lib -name libtorrent-rasterbar.so*); do \
         for LIB in $(ldd "${FILE}" | awk '{print $3}' | grep -v "^ldd$"); do \
             if [[ ! -e "${LIB}" ]]; then \
                 echo "Missing library: ${LIB}" >&2 && exit 1 \
-            ; fi \
-        ; done \
-    ; done
+            ;fi \
+        ;done \
+    ;done
