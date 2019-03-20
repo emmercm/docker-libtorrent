@@ -40,11 +40,11 @@ jobs:
           keys:
             - v3-{{ .Branch }}
           paths:
-            - /workspace/images.tar
+            - /workspace/images
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            docker load --input /workspace/images.tar || true
+            docker load --input /workspace/images/*.tar || true
       - run:
           name: Build Docker Image
           command: |
@@ -61,11 +61,11 @@ jobs:
           name: Save Docker Image(s) to Cache
           command: |
             source /workspace/.env
-            docker save --output /workspace/images.tar ${REPO_NAME}
+            docker save --output /workspace/images/${VERSION}.tar ${REPO_NAME}
       - save_cache:
           key: v3-{{ .Branch }}-{{ epoch }}
           paths:
-            - /workspace/images.tar
+            - /workspace/images
       - persist_to_workspace:
           root: /workspace
           paths:
@@ -81,7 +81,7 @@ jobs:
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            docker load --input /workspace/images.tar || true
+            docker load --input /workspace/images/*.tar || true
       - run:
           name: Publish Docker Image
           command: |
