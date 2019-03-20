@@ -1,9 +1,10 @@
 version: 2.1
 
 references:
-  env: &env
-    environment:
-      REPO_NAME: emmercm/libtorrent
+  environment: &environment
+    REPO_NAME: emmercm/libtorrent
+  alpine: &alpine
+    base_image: alpine:3.9
 
 executors:
   docker:
@@ -25,7 +26,7 @@ jobs:
       BASE_IMAGE: << parameters.base_image >>
       _VERSION: << parameters.version >>
       TAGS: << parameters.tags >>
-    <<: *env
+      <<: *environment
     steps:
       - checkout
       - setup_remote_docker
@@ -73,7 +74,8 @@ jobs:
 
   push:
     executor: docker
-    <<: *env
+    environment:
+      <<: *environment
     steps:
       - attach_workspace:
           at: /workspace
@@ -93,7 +95,8 @@ jobs:
 
   update-description:
     executor: docker
-    <<: *env
+    environment:
+      <<: *environment
     steps:
       - attach_workspace:
           at: /workspace
@@ -128,7 +131,7 @@ workflows:
       # https://github.com/arvidn/libtorrent/releases
       - build:
           name: 1.1.12
-          base_image: alpine:3.9
+          <<: *alpine
           version: 1.1.12
           tags: 1.1 1.1-alpine 1 1-alpine latest
       
