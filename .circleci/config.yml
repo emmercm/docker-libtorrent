@@ -125,20 +125,20 @@ workflows:
     jobs:
       # https://github.com/arvidn/libtorrent/releases
       - build:
-          name: 1.1.12
+          name: 1.1.*
           base_image: alpine:3.9
           version: 1.1.12
           tags: 1.1 1.1-alpine 1 1-alpine latest
       - build:
-          name: 1.0.11
+          name: 1.0.*
           base_image: alpine:3.7
           version: 1.0.11
           tags: 1.0 1.0-alpine
       
       - push:
           requires:
-            - 1.1.12
-            - 1.0.11
+            - 1.1.*
+            - 1.0.*
           filters:
             branches:
               only: master
