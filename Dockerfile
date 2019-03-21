@@ -25,7 +25,6 @@ RUN set -euo pipefail && \
     ./configure --disable-debug --enable-encryption --enable-geoip=no CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" && \
     make clean && \
     make -j$(nproc) && \
-    make uninstall && \
     make install-strip && \
     # Remove temp files
     cd && \
