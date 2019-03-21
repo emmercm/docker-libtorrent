@@ -8,7 +8,7 @@ FROM ${BASE_IMAGE}
 
 ARG VERSION=.
 
-COPY test.sh /
+# COPY test.sh /
 
 # Build libtorrent-rasterbar[-dev]
 RUN set -euo pipefail && \
@@ -32,4 +32,8 @@ RUN set -euo pipefail && \
     apk del --purge build-dependencies && \
     rm -rf /tmp/* && \
     # Test build
-    /test.sh
+    # /test.sh
+    echo ok
+
+COPY test.sh /
+RUN /test.sh

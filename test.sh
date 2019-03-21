@@ -12,7 +12,17 @@ echo "Found libtorrent:"
 echo "${LIBTORRENT_SO}"
 
 # Ensure libtorrent-rasterbar.so dependencies exist
-SHARED_SO=$(ldd /usr/local/lib/libtorrent-rasterbar.so* | sed '/^$/d' | awk '{print $3}' | grep -v "^ldd$" | sort)
+echo 1
+ldd /usr/local/lib/libtorrent-rasterbar.so*
+echo 2
+ldd /usr/local/lib/libtorrent-rasterbar.so* | sed '/^$/d'
+echo 3
+ldd /usr/local/lib/libtorrent-rasterbar.so* | sed '/^$/d' | awk '{print $3}'
+echo 4
+ldd /usr/local/lib/libtorrent-rasterbar.so* | sed '/^$/d' | awk '{print $3}' | sed '/^ldd$/d'
+echo 5
+ldd /usr/local/lib/libtorrent-rasterbar.so* | sed '/^$/d' | awk '{print $3}' | sed '/^ldd$/d' | sort
+SHARED_SO=$(ldd /usr/local/lib/libtorrent-rasterbar.so* | sed '/^$/d' | awk '{print $3}' | sed '/^ldd$/d' | sort)
 for SO in ${SHARED_SO}; do
     if [[ ! -e "${SO}" ]] ; then
         echo "Missing library file: ${LIB}" >&2
