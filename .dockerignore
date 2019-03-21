@@ -1,7 +1,7 @@
 # Repo strucutre
 .circleci/
 .git/
-LICSENSE*
+LICENSE*
 README*
 
 # Docker files
