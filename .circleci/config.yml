@@ -30,9 +30,8 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - v3-{{ .Branch }}-{{ .Revision }}
-            - v3-{{ .Branch }}-
-            - v3-
+            - v4-{{ .Branch }}-{{ .Environment.VERSION }}-{{ .Revision }}
+            - v4-{{ .Branch }}-{{ .Environment.VERSION }}-
           paths:
             - /cache
       - run:
@@ -62,7 +61,7 @@ jobs:
             fi
             docker save --output /cache/${VERSION}.tar ${REPO_NAME}
       - save_cache:
-          key: v3-{{ .Branch }}-{{ .Revision }}
+          key: v4-{{ .Branch }}-{{ .Environment.VERSION }}-{{ .Revision }}
           paths:
             - /cache
       - persist_to_workspace:
