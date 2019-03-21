@@ -2,13 +2,23 @@
 set -euo pipefail
 
 
-# Ensure libtorrent-rasterbar.so exists
+# Ensure libtorrent-rasterbar.a* exists
+LIBTORRENT_A=$(find /usr/local/lib -name libtorrent-rasterbar.a* | sort)
+if [[ "${LIBTORRENT_A}" == "" ]]; then
+    echo "Failed to find /usr/local/lib/libtorrent-rasterbar.a*" >&2
+    exit 1
+fi
+echo "Found libtorrent static libraries:"
+echo "${LIBTORRENT_A}"
+
+
+# Ensure libtorrent-rasterbar.so* exists
 LIBTORRENT_SO=$(find /usr/local/lib -name libtorrent-rasterbar.so* | sort)
 if [[ "${LIBTORRENT_SO}" == "" ]]; then
     echo "Failed to find /usr/local/lib/libtorrent-rasterbar.so*" >&2
     exit 1
 fi
-echo "Found libtorrent:"
+echo "Found libtorrent shared objects:"
 echo "${LIBTORRENT_SO}"
 
 # Ensure libtorrent-rasterbar.so dependencies exist
@@ -19,7 +29,8 @@ for SO in ${SHARED_SO}; do
         exit 1
     fi
 done
-echo "Found required libraries:"
+echo "Found libraries required by shared objects:"
 echo "${SHARED_SO}"
+
 
 exit 0

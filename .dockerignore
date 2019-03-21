@@ -1,13 +1,9 @@
 # Repo strucutre
 .circleci/
 .git/
-*.md
+LICENSE*
+README*
 
-# Attached folders
-config/
-downloads/
-incomplete
-torrents/
-
-# Extras
-docker-compose.yml
+# Docker files
+.dockerignore
+Dockerfile
