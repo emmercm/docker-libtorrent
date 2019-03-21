@@ -3,8 +3,6 @@ version: 2.1
 references:
   environment: &environment
     REPO_NAME: emmercm/libtorrent
-  alpine: &alpine
-    base_image: alpine:3.9
 
 executors:
   docker:
@@ -40,7 +38,9 @@ jobs:
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            docker load --input /cache/*.tar || true
+            for TAR in $(ls -1 /cache/*.tar); do
+              docker load --input "${TAR}"
+            done
       - run:
           name: Build Docker Image
           command: |
@@ -125,14 +125,20 @@ workflows:
     jobs:
       # https://github.com/arvidn/libtorrent/releases
       - build:
-          name: 1.1.12
-          <<: *alpine
+          name: 1.1.*
+          base_image: alpine:3.9
           version: 1.1.12
           tags: 1.1 1.1-alpine 1 1-alpine latest
+      - build:
+          name: 1.0.*
+          base_image: alpine:3.7
+          version: 1.0.11
+          tags: 1.0 1.0-alpine
       
       - push:
           requires:
-            - 1.1.12
+            - 1.1.*
+            - 1.0.*
           filters:
             branches:
               only: master
