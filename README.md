@@ -26,7 +26,7 @@ From [www.libtorrent.org](https://www.libtorrent.org/):
 
 libtorrent is written in C++ but has bindings for [Python](https://www.libtorrent.org/python_binding.html), [Java](https://github.com/frostwire/frostwire-jlibtorrent/), [Go](https://github.com/steeve/libtorrent-go), and [Node.js](https://github.com/fanatid/node-libtorrent).
 
-libtorrent is released uner the [BSD license](https://opensource.org/licenses/bsd-license.php) and all credit is given to Arvid Norberg and the libtorrent contributors.
+libtorrent is released uner the [BSD license](https://github.com/arvidn/libtorrent/blob/master/LICENSE) and all credit is given to Arvid Norberg and the libtorrent contributors.
 
 # Why full images?
 
