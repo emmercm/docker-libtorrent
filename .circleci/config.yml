@@ -30,9 +30,9 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - v3-{{ .Branch }}-{{ .Revision }}
-            - v3-{{ .Branch }}-
-            - v3-
+            - v4-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}
+            - v4-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-
+            - v4-{{ .Environment.CIRCLE_JOB }}-
           paths:
             - /cache
       - run:
@@ -50,7 +50,7 @@ jobs:
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
               --tag ${REPO_NAME}:${VERSION} \
-              --tag ${REPO_NAME}:${VERSION}-${BASE_IMAGE%:*} .
+              --tag ${REPO_NAME}:${VERSION}-${BASE_IMAGE%%:*} .
             for TAG in ${TAGS}; do
               docker tag ${REPO_NAME}:${VERSION} ${REPO_NAME}:${TAG}
             done
@@ -62,7 +62,7 @@ jobs:
             fi
             docker save --output /cache/${VERSION}.tar ${REPO_NAME}
       - save_cache:
-          key: v3-{{ .Branch }}-{{ .Revision }}
+          key: v4-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}
           paths:
             - /cache
       - persist_to_workspace:
@@ -81,7 +81,9 @@ jobs:
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            docker load --input /cache/*.tar || true
+            for TAR in $(ls -1 /cache/*.tar); do
+              docker load --input "${TAR}"
+            done
       - run:
           name: Publish Docker Image
           command: |
