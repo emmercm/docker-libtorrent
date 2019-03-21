@@ -141,12 +141,18 @@ workflows:
           base_image: alpine:3.7
           version: 1.0.11
           tags: 1.0 1.0-alpine
+      - build:
+          name: 0.16.*
+          base_image: alpine:3.7
+          version: 0.16.17
+          tags: 0.16 0.16-alpine 0 0-alpine
       
       - push:
           requires:
             - 1.2.*
             - 1.1.*
             - 1.0.*
+            - 0.16.*
           filters:
             branches:
               only: master
