@@ -5,7 +5,7 @@
 [![](https://badgen.net/circleci/github/emmercm/docker-libtorrent/master?icon=circleci)](https://github.com/emmercm/docker-libtorrent/blob/master/.circleci/config.yml)
 [![](https://badgen.net/github/license/emmercm/docker-libtorrent?color=grey)](https://github.com/emmercm/docker-libtorrent/blob/master/LICENSE)
 
-libtorrent base images.
+Base images with libtorrent compiled.
 
 # Supported tags
 
@@ -52,7 +52,7 @@ See [emmercm/qbittorrent](https://hub.docker.com/r/emmercm/qbittorrent) for an e
 
 ## `emmercm/libtorrent:<version>-alpine`
 
-The default variant, these images are based on [the `alpine` official image](https://hub.docker.com/_/alpine) which is designed to be "small, simple, and secure." This variant is recommended for when final image size is a concern.
+The default image variant, these images are based on [the `alpine` official image](https://hub.docker.com/_/alpine) which is designed to be "small, simple, and secure." This variant is recommended for when final image size is a concern.
 
 # License
 

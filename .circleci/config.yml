@@ -69,6 +69,14 @@ jobs:
           paths:
             - "*"
 
+  test:
+    executor: docker
+    steps:
+      - run:
+          name: Test Docker Image(s)
+          command: |
+            echo ok
+
   push:
     executor: docker
     environment:
@@ -127,7 +135,7 @@ jobs:
 
 workflows:
   version: 2.1
-  build-push:
+  build-test-push:
     jobs:
       # https://github.com/arvidn/libtorrent/releases
       - build:
@@ -151,13 +159,17 @@ workflows:
           base_image: alpine:3.7
           version: 0.16.17
           tags: 0.16 0.16-alpine 0 0-alpine
-      
-      - push:
+
+      - test:
           requires:
             - 1.2.*
             - 1.1.*
             - 1.0.*
             - 0.16.*
+      
+      - push:
+          requires:
+            - test
           filters:
             branches:
               only: master
