@@ -3,7 +3,7 @@ set -euo pipefail
 
 
 # Ensure libtorrent-rasterbar.so exists
-LIBTORRENT_SO=$(find /usr/local/lib -name libtorrent-rasterbar.so*)
+LIBTORRENT_SO=$(find /usr/local/lib -name libtorrent-rasterbar.so* | sort)
 if [[ "${LIBTORRENT_SO}" == "" ]]; then
     echo "Failed to find /usr/local/lib/libtorrent-rasterbar.so*" >&2
     exit 1
