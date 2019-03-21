@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -euxo pipefail
+set -euo pipefail
 
 
 # Ensure libtorrent-rasterbar.so exists

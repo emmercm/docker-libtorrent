@@ -14,15 +14,15 @@ ARG VERSION=.
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              boost-system geoip libgcc libstdc++ openssl && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev file g++ gcc geoip-dev git libtool make openssl-dev && \
+    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev file g++ gcc git libtool make openssl-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
-    ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" && \
+    ./configure --disable-debug --enable-encryption --enable-geoip=no CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" && \
     make clean && \
     make -j$(nproc) && \
     make uninstall && \
