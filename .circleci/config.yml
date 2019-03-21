@@ -38,8 +38,9 @@ jobs:
       - run:
           name: Load Docker Image(s) from Cache
           command: |
-            ls -al /cache
-            docker load --input /cache/*.tar || true
+            for TAR in $(ls -1 /cache/*.tar); do
+              docker load --input "${TAR}"
+            done
       - run:
           name: Build Docker Image
           command: |
