@@ -31,4 +31,5 @@ RUN set -euo pipefail && \
     apk del --purge build-dependencies && \
     rm -rf /tmp/* && \
     # Test build
-    /test.sh
+    /test.sh && \
+    rm /test.sh
