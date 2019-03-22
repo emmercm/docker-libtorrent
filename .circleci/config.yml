@@ -18,7 +18,6 @@ jobs:
         type: string
       python_version:
         type: integer
-        default: 0
       tags:
         type: string
         default: ''
@@ -26,7 +25,7 @@ jobs:
     environment:
       BASE_IMAGE: << parameters.base_image >>
       VERSION: << parameters.version >>
-      PYTHON_VERSION: <<# parameters.python_version >><< parameters.python_version >><</ parameters.python_version >>
+      PYTHON_VERSION: << parameters.python_version >>
       TAGS: << parameters.tags >>
       <<: *environment
     steps:
