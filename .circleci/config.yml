@@ -18,6 +18,7 @@ jobs:
         type: string
       python_version:
         type: integer
+        default: 0
       tags:
         type: string
         default: ''
@@ -51,7 +52,7 @@ jobs:
               --cache-from=${REPO_NAME}:${VERSION} \
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
-              --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+              --build-arg PYTHON_VERSION=${PYTHON_VERSION/#0/} \
               --tag ${REPO_NAME}:${VERSION} \
               --tag ${REPO_NAME}:${VERSION}-${BASE_IMAGE%%:*} .
             for TAG in ${TAGS}; do
