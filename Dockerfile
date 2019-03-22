@@ -27,8 +27,9 @@ RUN set -euo pipefail && \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
+        --enable-python-binding \
         PYTHON=$(which python3) \
-        --enable-python-binding && \
+        LDFLAGS="-L/usr/lib" && \
     make clean && \
     make -j$(nproc) && \
     make install-strip && \
