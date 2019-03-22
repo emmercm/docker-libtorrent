@@ -23,11 +23,12 @@ RUN set -euo pipefail && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     ./configure \
+        CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
-        --enable-python-binding \
-        CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" && \
+        PYTHON_VERSION=3 \
+        --enable-python-binding && \
     make clean && \
     make -j$(nproc) && \
     make install-strip && \
