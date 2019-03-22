@@ -23,9 +23,8 @@ RUN set -euo pipefail && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
-    PYTHON3=$(which python3) && \
     ./configure \
-        CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" \
+        CXXFLAGS="-Wno-deprecated-declarations" \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
