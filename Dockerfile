@@ -27,7 +27,7 @@ RUN set -euo pipefail && \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
-        PYTHON_VERSION=3 \
+        PYTHON_VERSION=$(python3 --version | sed -n 's/Python \([0-9]*\.[0-9]*\)\.[0-9]*/\1/p') \
         --enable-python-binding && \
     make clean && \
     make -j$(nproc) && \
