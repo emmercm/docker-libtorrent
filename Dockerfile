@@ -24,13 +24,13 @@ RUN set -euo pipefail && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     PYTHON3=$(which python3) && \
-    PYTHON3_VERSION=$(python3 --version | sed -n 's/Python \([0-9]*\.[0-9]*\)\.[0-9]*/\1/p') && \
     ./configure \
         CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
-        --enable-python-binding && \
+        --enable-python-binding \
+        PYTHON="$(which python${PYTHON_VERSION})" && \
     make -j$(nproc) && \
     make install-strip && \
     # Remove temp files
