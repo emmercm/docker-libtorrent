@@ -18,6 +18,7 @@ jobs:
         type: string
       python_version:
         type: integer
+        default: ''
       tags:
         type: string
         default: ''
@@ -165,7 +166,6 @@ workflows:
           name: 0.16.*
           base_image: alpine:3.7
           version: 0.16.17
-          python_version:
           tags: 0.16 0.16-alpine 0 0-alpine
 
       - test:
