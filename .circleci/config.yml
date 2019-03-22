@@ -48,6 +48,9 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
+            echo ${PYTHON_VERSION/0/}
+            echo ${PYTHON_VERSION/#0/}
+            echo ${PYTHON_VERSION#0}
             docker build \
               --cache-from=${REPO_NAME}:${VERSION} \
               --build-arg BASE_IMAGE=${BASE_IMAGE} \
