@@ -22,14 +22,16 @@ RUN set -euo pipefail && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
+    PYTHON3=$(which python3) && \
+    PYTHON3_VERSION=$(python3 --version | sed -n 's/Python \([0-9]*\.[0-9]*\)\.[0-9]*/\1/p') && \
     ./configure \
         CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
         --enable-python-binding \
-        PYTHON=$(which python3) \
-        LDFLAGS="-L/usr/lib" && \
+        PYTHON="${PYTHON3}" \
+        LDFLAGS="-L/usr/lib -lpython${PYTHON3_VERSION}m" && \
     make clean && \
     make -j$(nproc) && \
     make install-strip && \
