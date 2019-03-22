@@ -31,7 +31,8 @@ RUN set -euo pipefail && \
         --enable-encryption \
         --enable-python-binding \
         PYTHON="${PYTHON3}" \
-        LDFLAGS="-L/usr/lib -lpython${PYTHON3_VERSION}m" && \
+        LDFLAGS="-L/usr/lib" \
+        LIBS="-lpython${PYTHON3_VERSION}m" && \
     make clean && \
     make -j$(nproc) && \
     make install-strip && \
