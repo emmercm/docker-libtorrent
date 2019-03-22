@@ -16,7 +16,7 @@ RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
     apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev python${PYTHON_VERSION}-dev && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev ${PYTHON_VERSION+python${PYTHON_VERSION}-dev} && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
@@ -29,7 +29,7 @@ RUN set -euo pipefail && \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
-        --enable-python-binding \
+        ${PYTHON_VERSION+--enable-python-binding} \
         PYTHON="$(which python${PYTHON_VERSION})" && \
     make -j$(nproc) && \
     make install-strip && \

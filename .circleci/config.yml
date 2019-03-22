@@ -163,9 +163,9 @@ workflows:
           tags: 1.0 1.0-alpine
       - build:
           name: 0.16.*
-          base_image: alpine:3.4
+          base_image: alpine:3.7
           version: 0.16.17
-          python_version: 2
+          python_version:
           tags: 0.16 0.16-alpine 0 0-alpine
 
       - test:
