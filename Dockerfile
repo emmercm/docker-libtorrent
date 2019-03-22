@@ -11,7 +11,13 @@ ARG PYTHON_VERSION=3
 
 COPY test.sh /
 
-# Build libtorrent-rasterbar[-dev]
+RUN echo "1 ${PYTHON_VERSION}" && \
+    echo "2 ${PYTHON_VERSION+python${PYTHON_VERSION}-dev}" && \
+    echo "3 ${PYTHON_VERSION:+python${PYTHON_VERSION}-dev}" && \
+    echo "4 ${PYTHON_VERSION++python${PYTHON_VERSION}-dev}" && \
+    echo "5 ${PYTHON_VERSION+--enable-python-binding PYTHON=$(which python${PYTHON_VERSION})}"
+
+# Build libtorrent-rasterbar-dev
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
