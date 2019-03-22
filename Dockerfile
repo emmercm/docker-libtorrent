@@ -22,7 +22,12 @@ RUN set -euo pipefail && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
-    ./configure --disable-debug --enable-encryption --enable-geoip=no CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" && \
+    ./configure \
+        --disable-debug \
+        --disable-geoip \
+        --enable-encryption \
+        --enable-python-binding \
+        CXXFLAGS="-std=c++11 -Wno-deprecated-declarations" && \
     make clean && \
     make -j$(nproc) && \
     make install-strip && \
