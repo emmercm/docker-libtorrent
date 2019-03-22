@@ -17,7 +17,7 @@ jobs:
       version:
         type: string
       python_version:
-        type: string
+        type: integer
       tags:
         type: string
         default: ''
