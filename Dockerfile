@@ -7,6 +7,7 @@ ARG BASE_IMAGE=alpine:latest
 FROM ${BASE_IMAGE}
 
 ARG VERSION=.
+ARG PYTHON_VERSION=3
 
 COPY test.sh /
 
@@ -15,7 +16,7 @@ RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
     apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev python3-dev && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev python${PYTHON_VERSION}-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
@@ -29,10 +30,7 @@ RUN set -euo pipefail && \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
-        --enable-python-binding \
-        PYTHON="${PYTHON3}" \
-        PYTHON_LDFLAGS="-L/usr/lib -lpython${PYTHON3_VERSION}m" && \
-    make clean && \
+        --enable-python-binding && \
     make -j$(nproc) && \
     make install-strip && \
     # Remove temp files
