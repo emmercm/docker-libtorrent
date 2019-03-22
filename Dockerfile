@@ -29,8 +29,7 @@ RUN set -euo pipefail && \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
-        ${PYTHON_VERSION+--enable-python-binding} \
-        PYTHON="$(which python${PYTHON_VERSION})" && \
+        ${PYTHON_VERSION+--enable-python-binding PYTHON="$(which python${PYTHON_VERSION})"} && \
     make -j$(nproc) && \
     make install-strip && \
     # Remove temp files
