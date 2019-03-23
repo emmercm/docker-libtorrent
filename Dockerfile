@@ -46,3 +46,5 @@ RUN set -euo pipefail && \
     # Test build
     /test.sh && \
     rm /test.sh
+
+RUN ls -al /usr/local/lib/python3.6/site-packages/*
