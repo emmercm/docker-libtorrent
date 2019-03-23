@@ -33,4 +33,10 @@ echo "Found libraries required by libtorrent shared objects:"
 echo "${SHARED_SO}"
 
 
+# Ensure Python binding can be imported
+if [[ "${PYTHON_VERSION}" != "" ]];
+    python${PYTHON_VERSION} -c 'import libtorrent' || exit 1
+then
+
+
 exit 0
