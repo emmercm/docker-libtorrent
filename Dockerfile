@@ -26,7 +26,7 @@ RUN set -euo pipefail && \
     ./configure \
         CFLAGS="-Wno-deprecated-declarations" \
         CXXFLAGS="-Wno-deprecated-declarations" \
-        --prefix=/usr && \
+        --prefix=/usr \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
