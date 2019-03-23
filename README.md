@@ -9,12 +9,12 @@ Base images with libtorrent compiled.
 
 # Supported tags
 
-| Tags | Size / Layers |
-|-------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `1.2.0`, `1.2.0-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine`, `latest` | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.2.0.svg)](https://microbadger.com/images/emmercm/libtorrent:1.2.0 "Get your own image badge on microbadger.com") |
-| `1.1.12`, `1.1.12-alpine`, `1.1`, `1.1-alpine` | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.1.12.svg)](https://microbadger.com/images/emmercm/libtorrent:1.1.12 "Get your own image badge on microbadger.com") |
-| `1.0.11`, `1.0.11-alpine`, `1.0`, `1.0-alpine` | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.0.11.svg)](https://microbadger.com/images/emmercm/libtorrent:1.0.11 "Get your own image badge on microbadger.com") |
-| `0.16.17`, `0.16.17-alpine`, `0.16`, `0.16-alpine`, `0`, `0-alpine` | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:0.16.17.svg)](https://microbadger.com/images/emmercm/libtorrent:0.16.17 "Get your own image badge on microbadger.com") |
+| Tags | Python Binding |Size / Layers |
+|-|-|-|
+| `1.2.0`, `1.2.0-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine`, `latest` | v3.x | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.2.0.svg)](https://microbadger.com/images/emmercm/libtorrent:1.2.0 "Get your own image badge on microbadger.com") |
+| `1.1.12`, `1.1.12-alpine`, `1.1`, `1.1-alpine` | v3.x  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.1.12.svg)](https://microbadger.com/images/emmercm/libtorrent:1.1.12 "Get your own image badge on microbadger.com") |
+| `1.0.11`, `1.0.11-alpine`, `1.0`, `1.0-alpine` | v3.x  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.0.11.svg)](https://microbadger.com/images/emmercm/libtorrent:1.0.11 "Get your own image badge on microbadger.com") |
+| `0.16.17`, `0.16.17-alpine`, `0.16`, `0.16-alpine`, `0`, `0-alpine` | -  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:0.16.17.svg)](https://microbadger.com/images/emmercm/libtorrent:0.16.17 "Get your own image badge on microbadger.com") |
 
 # What is libtorrent?
 
@@ -27,6 +27,15 @@ From [www.libtorrent.org](https://www.libtorrent.org/):
 libtorrent is written in C++ but has bindings for [Python](https://www.libtorrent.org/python_binding.html), [Java](https://github.com/frostwire/frostwire-jlibtorrent/), [Go](https://github.com/steeve/libtorrent-go), and [Node.js](https://github.com/fanatid/node-libtorrent).
 
 libtorrent is released uner the [BSD license](https://github.com/arvidn/libtorrent/blob/master/LICENSE) and all credit is given to Arvid Norberg and the libtorrent contributors.
+
+# Image contents
+
+These images contain 4 main things:
+
+- `/usr/local/lib/libtorrent-rasterbar.a*`: shared library
+- `/usr/local/lib/libtorrent-rasterbar.so*`: static library
+- `/usr/local/lib/python*/site-packages/libtorrent.cpython-*.so`: C extension for CPython
+- `/usr/local/lib/python*/site-packages/python_libtorrent-*.egg-info`: Python binding
 
 # Why full images?
 

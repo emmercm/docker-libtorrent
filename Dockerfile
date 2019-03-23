@@ -6,17 +6,10 @@ ARG BASE_IMAGE=alpine:latest
 
 FROM ${BASE_IMAGE}
 
-ARG VERSION=.
+ARG VERSION=[0-9]+.[0-9]+.[0-9]+
 ARG PYTHON_VERSION=3
 
 COPY test.sh /
-
-RUN echo "1 ${PYTHON_VERSION}" && \
-    echo "2 ${PYTHON_VERSION+python${PYTHON_VERSION}-dev}" && \
-    echo "3 ${PYTHON_VERSION:+python${PYTHON_VERSION}-dev}" && \
-    echo "4 ${PYTHON_VERSION++python${PYTHON_VERSION}-dev}" && \
-    echo "5 ${PYTHON_VERSION+--enable-python-binding PYTHON=$(which python${PYTHON_VERSION})}" && \
-    echo "6 ${PYTHON_VERSION:+--enable-python-binding PYTHON=$(which python${PYTHON_VERSION})}"
 
 # Build libtorrent-rasterbar-dev
 RUN set -euo pipefail && \
@@ -46,5 +39,3 @@ RUN set -euo pipefail && \
     # Test build
     /test.sh && \
     rm /test.sh
-
-RUN ls -al /usr/local/lib/python3.6/site-packages/*

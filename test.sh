@@ -29,7 +29,7 @@ for SO in ${SHARED_SO}; do
         exit 1
     fi
 done
-echo "Found libraries required by shared objects:"
+echo "Found libraries required by libtorrent shared objects:"
 echo "${SHARED_SO}"
 
 
