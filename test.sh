@@ -34,9 +34,9 @@ echo "${SHARED_SO}"
 
 
 # Ensure Python binding can be imported
-if [[ "${PYTHON_VERSION}" != "" ]];
+if [[ "${PYTHON_VERSION}" != "" ]]; then
     python${PYTHON_VERSION} -c 'import libtorrent' || exit 1
-then
+fi
 
 
 exit 0

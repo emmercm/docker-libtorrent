@@ -22,7 +22,6 @@ RUN set -euo pipefail && \
     cd libtorrent && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
-    ls -al bindings/python/ && \
     ./autotool.sh && \
     ./configure \
         CFLAGS="-Wno-deprecated-declarations" \
@@ -31,10 +30,8 @@ RUN set -euo pipefail && \
         --disable-geoip \
         --enable-encryption \
         ${PYTHON_VERSION:+--enable-python-binding PYTHON="$(which python${PYTHON_VERSION})"} && \
-    make --help && \
     make -j$(nproc) && \
     make install && \
-    ls -al bindings/python/ && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
