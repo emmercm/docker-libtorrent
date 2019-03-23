@@ -15,7 +15,7 @@ COPY test.sh /
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
+    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl ${PYTHON_VERSION:+python${PYTHON_VERSION}} && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev ${PYTHON_VERSION:+python${PYTHON_VERSION}-dev} && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
