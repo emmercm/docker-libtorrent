@@ -22,8 +22,9 @@ RUN set -euo pipefail && \
     cd libtorrent && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
-    python${PYTHON_VERSION} --version | sed -n 's/Python \([0-9]*\.[0-9]*\)\.[0-9]*/\1/p' && \
-    python${PYTHON_VERSION} --version | sed -n 's/Python \([0-9]+\.[0-9]+\)\.[0-9]+/\1/p' && \
+    ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*-mt.so* && \
+    ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*-mt.so* | sed 's/\.so.*//' && \
+    basename $(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*-mt.so* | sed 's/\.so.*//') && \
     ./autotool.sh && \
     ./configure \
         CFLAGS="-Wno-deprecated-declarations" \
@@ -32,7 +33,7 @@ RUN set -euo pipefail && \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
-        ${PYTHON_VERSION:+--enable-python-binding --with-boost-python=libboost_python36-mt PYTHON="$(which python${PYTHON_VERSION})"} && \
+        ${PYTHON_VERSION:+--enable-python-binding --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*-mt.so* | sed 's/.*.\/lib//' | sed 's/\.so.*//')" PYTHON="$(which python${PYTHON_VERSION})"} && \
     make -j$(nproc) && \
     make install && \
     if [[ "${PYTHON_VERSION}" != "" ]]; then python${PYTHON_VERSION} -c 'import libtorrent' || exit 1; fi && \
