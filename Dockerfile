@@ -32,9 +32,6 @@ RUN set -euo pipefail && \
         ${PYTHON_VERSION:+--enable-python-binding PYTHON="$(which python${PYTHON_VERSION})"} && \
     make -j$(nproc) && \
     make install && \
-    cd bindings/python && \
-    python${PYTHON_VERSION} setup.py build && \
-    python${PYTHON_VERSION} setup.py install && \
     if [[ "${PYTHON_VERSION}" != "" ]]; then python${PYTHON_VERSION} -c 'import libtorrent' || exit 1; fi && \
     # Remove temp files
     cd && \
