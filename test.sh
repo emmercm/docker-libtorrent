@@ -34,15 +34,17 @@ echo "${SHARED_SO}"
 
 
 # Ensure libtorrent.cpython-*.so dependencies exist
-PYTHON_SO=$((ldd /usr/lib/python*/site-packages/libtorrent.cpython-*.so | awk '{print $3}' | sed '/^$/d' | sed '/^ldd$/d' | sort) || true)
-for SO in ${PYTHON_SO}; do
-    if [[ ! -e "${SO}" ]] ; then
-        echo "Missing library file: ${LIB}" >&2
-        exit 1
-    fi
-done
-echo "Found libraries required by libtorrent Python binding shared objects:"
-echo "${PYTHON_SO}"
+if [[ "${PYTHON_VERSION}" != "" ]]; then
+    PYTHON_SO=$(ldd /usr/lib/python*/site-packages/libtorrent.cpython-*.so | awk '{print $3}' | sed '/^$/d' | sed '/^ldd$/d' | sort)
+    for SO in ${PYTHON_SO}; do
+        if [[ ! -e "${SO}" ]] ; then
+            echo "Missing library file: ${LIB}" >&2
+            exit 1
+        fi
+    done
+    echo "Found libraries required by libtorrent Python binding shared objects:"
+    echo "${PYTHON_SO}"
+fi
 
 
 exit 0
