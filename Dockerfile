@@ -15,7 +15,7 @@ COPY test.sh /
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl && \
+    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev ${PYTHON_VERSION:+python${PYTHON_VERSION}-dev} && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
@@ -33,6 +33,9 @@ RUN set -euo pipefail && \
         ${PYTHON_VERSION:+--enable-python-binding PYTHON="$(which python${PYTHON_VERSION})"} && \
     make -j$(nproc) && \
     make install && \
+    cd bindings/python && \
+    python${PYTHON_VERSION} setup.py build && \
+    python${PYTHON_VERSION} setup.py install && \
     if [[ "${PYTHON_VERSION}" != "" ]]; then python${PYTHON_VERSION} -c 'import libtorrent' || exit 1; fi && \
     # Remove temp files
     cd && \
