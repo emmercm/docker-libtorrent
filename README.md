@@ -9,7 +9,7 @@ Base images with libtorrent compiled.
 
 # Supported tags
 
-| Tags | Python Binding |Size / Layers |
+| Tags | Python Binding | Size / Layers |
 |-|-|-|
 | `1.2.0`, `1.2.0-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine`, `latest` | v3 | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.2.0.svg)](https://microbadger.com/images/emmercm/libtorrent:1.2.0 "Get your own image badge on microbadger.com") |
 | `1.1.12`, `1.1.12-alpine`, `1.1`, `1.1-alpine` | v3  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.1.12.svg)](https://microbadger.com/images/emmercm/libtorrent:1.1.12 "Get your own image badge on microbadger.com") |
