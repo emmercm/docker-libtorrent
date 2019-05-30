@@ -48,7 +48,7 @@ jobs:
               --tag ${REPO_NAME}:${VERSION} \
               --tag ${REPO_NAME}:${VERSION}-alpine .
             for TAG in ${TAGS}; do
-              docker tag ${REPO_NAME}:${TAG}
+              docker tag ${REPO_NAME}:${VERSION} ${REPO_NAME}:${TAG}
             done
       - run:
           name: Save Docker Image(s) to Cache
