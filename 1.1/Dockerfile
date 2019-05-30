@@ -23,8 +23,6 @@ RUN set -euo pipefail && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     ./configure \
-        CFLAGS="" \
-        CXXFLAGS="" \
         --prefix=/usr \
         --disable-debug \
         --enable-encryption \
