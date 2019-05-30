@@ -42,6 +42,7 @@ jobs:
           name: Build Docker Image
           command: |
             docker build \
+              --file=${VERSION%.*}/Dockerfile \
               --cache-from=${REPO_NAME}:${VERSION} \
               --build-arg VERSION=${VERSION} \
               --tag ${REPO_NAME}:${VERSION} \
