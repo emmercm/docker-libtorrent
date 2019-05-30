@@ -3,12 +3,9 @@
 #   https://discourse.osmc.tv/t/howto-update-compile-qbittorrent-nox/19726/3
 #   https://git.alpinelinux.org/aports/tree/testing/libtorrent-rasterbar/APKBUILD
 
-ARG BASE_IMAGE=alpine:latest
+FROM alpine:latest
 
-FROM ${BASE_IMAGE}
-
-ARG VERSION=[0-9]+.[0-9]+.[0-9]+
-ARG PYTHON_VERSION=3
+ARG VERSION=0.16.[0-9]+
 
 COPY test.sh /
 
@@ -16,8 +13,8 @@ COPY test.sh /
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              ${PYTHON_VERSION:+boost-python${PYTHON_VERSION/2/}} boost-system libgcc libstdc++ openssl && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev ${PYTHON_VERSION:+python${PYTHON_VERSION}-dev} && \
+    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
@@ -31,12 +28,9 @@ RUN set -euo pipefail && \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
-        --with-libiconv \
-        ${PYTHON_VERSION:+--enable-python-binding --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*-mt.so* | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" PYTHON="$(which python${PYTHON_VERSION})"} && \
+        --with-libiconv && \
     make -j$(nproc) && \
     make install && \
-    # Test Python binding (before Python is uninstalled)
-    if [[ "${PYTHON_VERSION}" != "" ]]; then python${PYTHON_VERSION} -c 'import libtorrent' || exit 1; fi && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
