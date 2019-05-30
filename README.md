@@ -47,7 +47,7 @@ These images do not alter their base image's `ENTRYPOINT` or `CMD` and therefore
 
 The purpose of these images is to provide a compiled version of `libtorrent` to serve as a basis for other images:
 
-```
+```dockerfile
 FROM emmercm/libtorrent:1.1
 
 # compile torrent client
