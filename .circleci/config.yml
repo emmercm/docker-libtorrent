@@ -37,6 +37,7 @@ jobs:
           command: |
             for TAR in $(ls -1 /cache/*.tar); do
               docker load --input "${TAR}"
+              rm "${TAR}"
             done
       - run:
           name: Build Docker Image
