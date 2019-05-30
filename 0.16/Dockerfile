@@ -22,8 +22,7 @@ RUN set -euo pipefail && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     ./configure \
-        CFLAGS="" \
-        CXXFLAGS="-Wno-deprecated-declarations -Wno-cpp" \
+        CXXFLAGS="-Wno-cpp -Wno-deprecated-declarations -Wno-invalid-offsetof" \
         --prefix=/usr \
         --disable-debug \
         --disable-geoip \
