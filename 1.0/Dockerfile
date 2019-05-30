@@ -23,7 +23,6 @@ RUN set -euo pipefail && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     ./configure \
-        CFLAGS="-Wno-cpp -Wno-deprecated-declarations" \
         CXXFLAGS="-Wno-cpp -Wno-deprecated-declarations -Wno-invalid-offsetof" \
         --prefix=/usr \
         --disable-debug \
