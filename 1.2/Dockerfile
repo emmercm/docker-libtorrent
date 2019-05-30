@@ -27,7 +27,6 @@ RUN set -euo pipefail && \
         CXXFLAGS="-Wno-deprecated-declarations" \
         --prefix=/usr \
         --disable-debug \
-        --disable-geoip \
         --enable-encryption \
         --with-libiconv \
         ${PYTHON_VERSION:+--enable-python-binding --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*-mt.so* | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" PYTHON="$(which python${PYTHON_VERSION})"} && \
