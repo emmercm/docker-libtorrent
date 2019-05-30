@@ -98,7 +98,7 @@ jobs:
           name: Update MicroBadger
           command: |
             apk add --no-cache curl
-            curl --request POST https://hooks.microbadger.com/images/emmercm/libtorrent/7Jjffugpadb2vBrUXMy7gwx_eoo=
+            curl --request POST "${MICROBADGER_WEBHOOK}"
 
   update-description:
     executor: docker
