@@ -12,21 +12,14 @@ executors:
 jobs:
   build:
     parameters:
-      base_image:
-        type: string
       version:
         type: string
-      python_version:
-        type: integer
-        default: 0
       tags:
         type: string
         default: ''
     executor: docker
     environment:
-      BASE_IMAGE: << parameters.base_image >>
       VERSION: << parameters.version >>
-      PYTHON_VERSION: << parameters.python_version >>
       TAGS: << parameters.tags >>
       <<: *environment
     steps:
@@ -44,17 +37,17 @@ jobs:
           command: |
             for TAR in $(ls -1 /cache/*.tar); do
               docker load --input "${TAR}"
+              rm "${TAR}"
             done
       - run:
           name: Build Docker Image
           command: |
             docker build \
+              --file=${VERSION%.*}/Dockerfile \
               --cache-from=${REPO_NAME}:${VERSION} \
-              --build-arg BASE_IMAGE=${BASE_IMAGE} \
               --build-arg VERSION=${VERSION} \
-              --build-arg PYTHON_VERSION=${PYTHON_VERSION#0} \
               --tag ${REPO_NAME}:${VERSION} \
-              --tag ${REPO_NAME}:${VERSION}-${BASE_IMAGE%%:*} .
+              --tag ${REPO_NAME}:${VERSION}-alpine .
             for TAG in ${TAGS}; do
               docker tag ${REPO_NAME}:${VERSION} ${REPO_NAME}:${TAG}
             done
@@ -107,7 +100,7 @@ jobs:
           name: Update MicroBadger
           command: |
             apk add --no-cache curl
-            curl --request POST https://hooks.microbadger.com/images/emmercm/libtorrent/7Jjffugpadb2vBrUXMy7gwx_eoo=
+            curl --request POST "${MICROBADGER_WEBHOOK}"
 
   update-description:
     executor: docker
@@ -144,36 +137,29 @@ workflows:
     jobs:
       # https://github.com/arvidn/libtorrent/releases
       - build:
-          name: 1.2.*
-          base_image: alpine:3.9
+          name: "1.2"
           version: 1.2.1
-          python_version: 3
           tags: 1.2 1.2-alpine 1 1-alpine latest
       - build:
-          name: 1.1.*
-          base_image: alpine:3.9
+          name: "1.1"
           version: 1.1.13
-          python_version: 3
           tags: 1.1 1.1-alpine
       # (Below locked at lower Alpine versions for old Boost versions)
       - build:
-          name: 1.0.*
-          base_image: alpine:3.7
+          name: "1.0"
           version: 1.0.11
-          python_version: 3
           tags: 1.0 1.0-alpine
       - build:
-          name: 0.16.*
-          base_image: alpine:3.7
+          name: "0.16"
           version: 0.16.17
           tags: 0.16 0.16-alpine 0 0-alpine
 
       - test:
           requires:
-            - 1.2.*
-            - 1.1.*
-            - 1.0.*
-            - 0.16.*
+            - "1.2"
+            - "1.1"
+            - "1.0"
+            - "0.16"
       
       - push:
           requires:
