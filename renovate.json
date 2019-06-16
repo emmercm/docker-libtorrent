@@ -5,24 +5,27 @@
   ],
   "assignees": ["@emmercm"],
   "pinDigests": true,
-  "circleci": {
-    "automerge": true
-  },
-  "packageRules": [{
-    "paths": [
-      "0.16/Dockerfile",
-      "1.0/Dockerfile"
-    ],
-    "major": {
-      "enabled": false
+  "packageRules": [
+    {
+      "paths": [".circleci/config.yml"],
+      "automerge": true
     },
-    "separateMajorMinor": true,
-    "minor": {
-      "enabled": false
-    },
-    "separateMinorPatch": true,
-    "patch": {
-      "enabled": true
+    {
+      "paths": [
+        "0.16/Dockerfile",
+        "1.0/Dockerfile"
+      ],
+      "major": {
+        "enabled": false
+      },
+      "separateMajorMinor": true,
+      "minor": {
+        "enabled": false
+      },
+      "separateMinorPatch": true,
+      "patch": {
+        "enabled": true
+      }
     }
-  }]
+  ]
 }
