@@ -38,5 +38,6 @@ RUN set -euo pipefail && \
     rm -rf /tmp/* && \
     # Test build (after all uninstalls)
     /test.sh && \
-    rm /test.sh && \
-    du -ch -d 10 * | sort -rh | head -100
+    rm /test.sh
+
+ RUN du -ch -d 10 / | sort -rh | head -100
