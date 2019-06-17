@@ -52,7 +52,7 @@ fi
 
 # Ensure Python import works
 if [[ "${PYTHON_VERSION:-}" != "" ]]; then
-    python${PYTHON_VERSION/2/} -c "import libtorrent; print libtorrent.version"
+    python${PYTHON_VERSION/2/} -c "import libtorrent; print(libtorrent.version)"
 fi
 
 exit 0
