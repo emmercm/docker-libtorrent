@@ -10,6 +10,7 @@ if [[ "${LIBTORRENT_A}" == "" ]]; then
 fi
 echo "Found libtorrent static libraries:"
 echo "${LIBTORRENT_A}"
+echo ""
 
 
 # Ensure libtorrent-rasterbar.so* exists
@@ -20,6 +21,7 @@ if [[ "${LIBTORRENT_SO}" == "" ]]; then
 fi
 echo "Found libtorrent shared objects:"
 echo "${LIBTORRENT_SO}"
+echo ""
 
 # Ensure libtorrent-rasterbar.so dependencies exist
 SHARED_SO=$(ldd /usr/lib/libtorrent-rasterbar.so* | awk '{print $3}' | sed '/^$/d' | sed '/^ldd$/d' | sort)
@@ -31,6 +33,7 @@ for SO in ${SHARED_SO}; do
 done
 echo "Found libraries required by libtorrent shared objects:"
 echo "${SHARED_SO}"
+echo ""
 
 
 # Ensure libtorrent.cpython-*.so dependencies exist
@@ -44,6 +47,7 @@ if [[ "${PYTHON_VERSION:-}" != "" ]]; then
     done
     echo "Found libraries required by libtorrent Python binding shared objects:"
     echo "${PYTHON_SO}"
+    echo ""
 fi
 
 
