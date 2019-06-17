@@ -40,4 +40,5 @@ RUN set -euo pipefail && \
     /test.sh && \
     rm /test.sh
 
- RUN du -ch -d 10 / | sort -rh | head -100
+RUN apk --update add sort && \
+    du -ch -d 10 / | sort -rh | head -100
