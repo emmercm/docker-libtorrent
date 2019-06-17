@@ -29,7 +29,7 @@ RUN set -euo pipefail && \
         --enable-encryption \
         --with-libiconv && \
     make -j$(nproc) && \
-    make install && \
+    make install-strip && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
