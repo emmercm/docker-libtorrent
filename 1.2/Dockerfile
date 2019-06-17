@@ -41,4 +41,5 @@ RUN set -euo pipefail && \
     rm /test.sh
 
 RUN apk --update add coreutils && \
-    du -ch -d 10 / | sort -rh | head -100
+    du -ch -d 10 / | sort -rh | head -100 && \
+    find / -type f -exec du -ah {} + | sort -rh | head -100
