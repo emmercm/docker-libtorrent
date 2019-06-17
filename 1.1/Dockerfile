@@ -25,6 +25,7 @@ RUN set -euo pipefail && \
     ./configure \
         --prefix=/usr \
         --disable-debug \
+        --disable-geoip \
         --enable-encryption \
         --with-libiconv \
         ${PYTHON_VERSION:+--enable-python-binding --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*-mt.so* | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" PYTHON="$(which python${PYTHON_VERSION})"} && \
@@ -39,3 +40,7 @@ RUN set -euo pipefail && \
     # Test build (after all uninstalls)
     /test.sh && \
     rm /test.sh
+
+RUN apk --update add coreutils
+RUN du -ch -d 10 / | sort -rh | head -100
+RUN find / -type f -exec du -ah {} + | sort -rh | head -100
