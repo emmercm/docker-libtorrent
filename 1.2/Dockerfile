@@ -24,6 +24,7 @@ RUN set -euo pipefail && \
     ./autotool.sh && \
     ./configure \
         --prefix=/usr \
+        --disable-gui \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \

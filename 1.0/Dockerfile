@@ -25,6 +25,7 @@ RUN set -euo pipefail && \
     ./configure \
         CXXFLAGS="-Wno-cpp -Wno-deprecated-declarations -Wno-invalid-offsetof" \
         --prefix=/usr \
+        --disable-gui \
         --disable-debug \
         --disable-geoip \
         --enable-encryption \
