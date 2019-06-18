@@ -7,8 +7,6 @@ FROM alpine:3.7.3@sha256:02c076fdbe7d116860d9fb10f856ed6753a50deecb04c65443e2c63
 
 ARG VERSION=0.16.[0-9]+
 
-COPY test.sh /
-
 # Build libtorrent-rasterbar-dev
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
@@ -31,7 +29,4 @@ RUN set -euo pipefail && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
-    rm -rf /tmp/* && \
-    # Test build (after all uninstalls)
-    /test.sh && \
-    rm /test.sh
+    rm -rf /tmp/*
