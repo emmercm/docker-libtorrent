@@ -39,3 +39,9 @@ RUN set -euo pipefail && \
     # Test build (after all uninstalls)
     /test.sh && \
     rm /test.sh
+
+RUN apk --update add coreutils binutils
+RUN du -ch -d 10 / | sort -rh | head -100
+RUN find / -type f -exec du -ah {} + | sort -rh | head -100
+RUN size --totals /usr/lib/libtorrent-rasterbar.a | sort -n
+RUN ldd /usr/lib/libtorrent-rasterbar.so
