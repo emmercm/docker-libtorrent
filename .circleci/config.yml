@@ -54,6 +54,7 @@ jobs:
       - run:
           name: Test Docker Image
           command: |
+            apk add --no-cache curl
             curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
             container-structure-test test --config ${VERSION%.*}/container-structure-test.yaml --image ${REPO_NAME}:${VERSION}
       - run:
