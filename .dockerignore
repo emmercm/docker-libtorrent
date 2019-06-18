@@ -3,6 +3,8 @@
 .git/
 LICENSE*
 README*
+*.json
+*.yaml
 
 # Docker files
 .dockerignore
