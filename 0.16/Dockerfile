@@ -21,13 +21,10 @@ RUN set -euo pipefail && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
-    ./configure --help && \
     ./configure \
         CXXFLAGS="-Wno-cpp -Wno-deprecated-declarations -Wno-invalid-offsetof" \
         --prefix=/usr \
-        --disable-debug \
         --disable-geoip \
-        --enable-encryption \
         --with-libiconv && \
     make -j$(nproc) && \
     make install-strip && \
