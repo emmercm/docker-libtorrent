@@ -24,12 +24,10 @@ RUN set -euo pipefail && \
     ./configure \
         CXXFLAGS="-Wno-cpp -Wno-deprecated-declarations -Wno-invalid-offsetof" \
         --prefix=/usr \
-        --disable-debug \
         --disable-geoip \
-        --enable-encryption \
         --with-libiconv && \
     make -j$(nproc) && \
-    make install && \
+    make install-strip && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \

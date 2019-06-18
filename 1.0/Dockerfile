@@ -25,13 +25,11 @@ RUN set -euo pipefail && \
     ./configure \
         CXXFLAGS="-Wno-cpp -Wno-deprecated-declarations -Wno-invalid-offsetof" \
         --prefix=/usr \
-        --disable-debug \
         --disable-geoip \
-        --enable-encryption \
         --with-libiconv \
         ${PYTHON_VERSION:+--enable-python-binding --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*-mt.so* | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" PYTHON="$(which python${PYTHON_VERSION})"} && \
     make -j$(nproc) && \
-    make install && \
+    make install-strip && \
     # Test Python binding (before Python is uninstalled)
     if [[ "${PYTHON_VERSION}" != "" ]]; then python${PYTHON_VERSION} -c 'import libtorrent' || exit 1; fi && \
     # Remove temp files
