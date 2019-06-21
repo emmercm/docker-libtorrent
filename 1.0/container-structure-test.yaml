@@ -1,0 +1,55 @@
+schemaVersion: 2.0.0
+
+fileExistenceTests:
+  # libtorrent-rasterbar files
+  - name: "libtorrent-rasterbar.a"
+    path: "/usr/lib/libtorrent-rasterbar.a"
+    shouldExist: true
+    permissions: "-rw-r--r--"
+  - name: "libtorrent-rasterbar.so"
+    path: "/usr/lib/libtorrent-rasterbar.so"
+    shouldExist: true
+    permissions: "Lrwxrwxrwx"
+
+  # libtorrent-rasterbar.so dependencies
+  - name: "libcrypto.so"
+    path: "/lib/libcrypto.so.1.0.0"
+    shouldExist: true
+    permissions: "-r-xr-xr-x"
+  - name: "libssl.so"
+    path: "/lib/libssl.so.1.0.0"
+    shouldExist: true
+    permissions: "-r-xr-xr-x"
+  - name: "libz.so"
+    path: "/lib/libz.so.1"
+    shouldExist: true
+    permissions: "Lrwxrwxrwx"
+  - name: "libboost_system-mt.so"
+    path: "/usr/lib/libboost_system-mt.so.1.62.0"
+    shouldExist: true
+    permissions: "-rwxr-xr-x"
+  - name: "libgcc_s.so"
+    path: "/usr/lib/libgcc_s.so.1"
+    shouldExist: true
+    permissions: "-rw-r--r--"
+  - name: "libstdc++.so"
+    path: "/usr/lib/libstdc++.so.6"
+    shouldExist: true
+    permissions: "Lrwxrwxrwx"
+
+  # Python 3 files
+  - name: "libtorrent.cpython.so"
+    path: "/usr/lib/python3.6/site-packages/libtorrent.cpython-36m-x86_64-linux-gnu.so"
+    shouldExist: true
+    permissions: "-rwxr-xr-x"
+  - name: "python_libtorrent.egg-info"
+    path: "/usr/lib/python3.6/site-packages/python_libtorrent-1.0.11-py3.6.egg-info"
+    shouldExist: true
+    permissions: "-rw-r--r--"
+
+commandTests:
+  # Python 3 test
+  - name: "print(libtorrent.version)"
+    command: "python3"
+    args: ["-c", "import libtorrent; print(libtorrent.version)"]
+    expectedOutput: ["1.0.11.0"]

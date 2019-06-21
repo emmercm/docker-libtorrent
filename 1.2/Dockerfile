@@ -8,8 +8,6 @@ FROM alpine:3.9.4@sha256:769fddc7cc2f0a1c35abb2f91432e8beecf83916c421420e6a6da9f
 ARG VERSION=1.2.[0-9]+
 ARG PYTHON_VERSION=3
 
-COPY test.sh /
-
 # Build libtorrent-rasterbar-dev
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
@@ -33,7 +31,4 @@ RUN set -euo pipefail && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
-    rm -rf /tmp/* && \
-    # Test build (after all uninstalls)
-    /test.sh && \
-    rm /test.sh
+    rm -rf /tmp/*
