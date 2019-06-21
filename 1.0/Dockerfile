@@ -3,7 +3,7 @@
 #   https://discourse.osmc.tv/t/howto-update-compile-qbittorrent-nox/19726/3
 #   https://git.alpinelinux.org/aports/tree/testing/libtorrent-rasterbar/APKBUILD
 
-FROM alpine:3.7.3@sha256:02c076fdbe7d116860d9fb10f856ed6753a50deecb04c65443e2c6388d97ee35
+FROM alpine:3.7.3@sha256:8421d9a84432575381bfabd248f1eb56f3aa21d9d7cd2511583c68c9b7511d10
 
 ARG VERSION=1.0.[0-9]+
 ARG PYTHON_VERSION=3
