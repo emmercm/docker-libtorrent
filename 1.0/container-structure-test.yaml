@@ -48,8 +48,12 @@ fileExistenceTests:
     permissions: "-rw-r--r--"
 
 commandTests:
-  # Python 3 test
-  - name: "print(libtorrent.version)"
+  # Python tests (https://dev.deluge-torrent.org/wiki/Building/libtorrent#UbuntuDebian)
+  - name: "Python 2"
+    command: "python"
+    args: ["-c", "import libtorrent; print libtorrent.version "]
+    exitCode: 0
+  - name: "Python 3"
     command: "python3"
     args: ["-c", "import libtorrent; print(libtorrent.version)"]
-    expectedOutput: ["1.0.11.0"]
+    exitCode: 0
