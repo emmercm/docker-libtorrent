@@ -36,3 +36,5 @@ RUN set -euo pipefail && \
     cd && \
     apk del --purge build-dependencies && \
     rm -rf /tmp/*
+
+RUN ls -al /usr/lib/python*/site-packages
