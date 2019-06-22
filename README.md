@@ -9,11 +9,11 @@ Base images with libtorrent compiled.
 
 # Supported tags
 
-| Tags | Python Binding | Size / Layers |
+| Tags | Python Bindings | Size / Layers |
 |-|-|-|
-| `1.2.1`, `1.2.1-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine`, `latest` | v3 | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.2.1.svg)](https://microbadger.com/images/emmercm/libtorrent:1.2.1 "Get your own image badge on microbadger.com") |
-| `1.1.13`, `1.1.13-alpine`, `1.1`, `1.1-alpine` | v3  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.1.13.svg)](https://microbadger.com/images/emmercm/libtorrent:1.1.13 "Get your own image badge on microbadger.com") |
-| `1.0.11`, `1.0.11-alpine`, `1.0`, `1.0-alpine` | v3  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.0.11.svg)](https://microbadger.com/images/emmercm/libtorrent:1.0.11 "Get your own image badge on microbadger.com") |
+| `1.2.1`, `1.2.1-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine`, `latest` | v2, v3 | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.2.1.svg)](https://microbadger.com/images/emmercm/libtorrent:1.2.1 "Get your own image badge on microbadger.com") |
+| `1.1.13`, `1.1.13-alpine`, `1.1`, `1.1-alpine` | v2, v3  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.1.13.svg)](https://microbadger.com/images/emmercm/libtorrent:1.1.13 "Get your own image badge on microbadger.com") |
+| `1.0.11`, `1.0.11-alpine`, `1.0`, `1.0-alpine` | v2, v3  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.0.11.svg)](https://microbadger.com/images/emmercm/libtorrent:1.0.11 "Get your own image badge on microbadger.com") |
 | `0.16.17`, `0.16.17-alpine`, `0.16`, `0.16-alpine`, `0`, `0-alpine` | -  | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:0.16.17.svg)](https://microbadger.com/images/emmercm/libtorrent:0.16.17 "Get your own image badge on microbadger.com") |
 
 # What is libtorrent?
@@ -34,7 +34,7 @@ These images contain 4 main things:
 
 - `/usr/lib/libtorrent-rasterbar.a*`: shared library
 - `/usr/lib/libtorrent-rasterbar.so*`: static library
-- `/usr/lib/python*/site-packages/libtorrent.cpython-*.so`: C extension for CPython
+- `/usr/lib/python*/site-packages/libtorrent*.so`: C extension for Python
 - `/usr/lib/python*/site-packages/python_libtorrent-*.egg-info`: Python binding
 
 # Why full images?
