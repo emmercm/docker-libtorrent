@@ -6,28 +6,32 @@
 FROM alpine:3.10.0@sha256:ca1c944a4f8486a153024d9965aafbe24f5723c1d5c02f4964c045a16d19dc54
 
 ARG VERSION=1.2.[0-9]+
-ARG PYTHON_VERSION=3
 
 # Build libtorrent-rasterbar-dev
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              ${PYTHON_VERSION:+boost-python${PYTHON_VERSION/2/}} boost-system libgcc libstdc++ openssl && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev ${PYTHON_VERSION:+python${PYTHON_VERSION}-dev} && \
+    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
-    ./configure \
-        --prefix=/usr \
-        --with-libiconv \
-        ${PYTHON_VERSION:+--enable-python-binding --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*.so* | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" PYTHON="$(which python${PYTHON_VERSION})"} && \
-    make -j$(nproc) && \
-    make install-strip && \
-    # Test Python binding (before Python is uninstalled)
-    if [[ "${PYTHON_VERSION}" != "" ]]; then python${PYTHON_VERSION} -c 'import libtorrent' || exit 1; fi && \
+    for PYTHON_VERSION in $(seq 2 3); do \
+        apk --update add --no-cache                               boost-python${PYTHON_VERSION} && \
+        apk --update add --no-cache --virtual python-dependencies python${PYTHON_VERSION}-dev && \
+        ./configure \
+            --prefix=/usr \
+            --with-libiconv \
+            --enable-python-binding \
+            --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION/2/}*.so* | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
+            PYTHON="$(which python${PYTHON_VERSION})" && \
+        make -j$(nproc) && \
+        make install-strip && \
+        apk del --purge python-dependencies; \
+    done && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
