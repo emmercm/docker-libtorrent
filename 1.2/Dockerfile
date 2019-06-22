@@ -26,7 +26,7 @@ RUN set -euo pipefail && \
             --prefix=/usr \
             --with-libiconv \
             --enable-python-binding \
-            --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*.so* | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
+            --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION/2/}*.so* | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
             PYTHON="$(which python${PYTHON_VERSION})" && \
         make -j$(nproc) && \
         make install-strip; \
