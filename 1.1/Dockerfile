@@ -29,8 +29,8 @@ RUN set -euo pipefail && \
             --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION}*.so* | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
             PYTHON="$(which python${PYTHON_VERSION})" && \
         make -j$(nproc) && \
-        make install-strip \
-    done \
+        make install-strip; \
+    done && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
