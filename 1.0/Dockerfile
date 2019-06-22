@@ -20,8 +20,8 @@ RUN set -euo pipefail && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     for PYTHON_VERSION in $(seq 2 3); do \
-        apk --update add --no-cache                              boost-python${PYTHON_VERSION/2/} && \
-        apk --update add --no-cache --virtual build-dependencies python${PYTHON_VERSION}-dev && \
+        apk --update add --no-cache                               boost-python${PYTHON_VERSION/2/} && \
+        apk --update add --no-cache --virtual python-dependencies python${PYTHON_VERSION}-dev && \
         ./configure \
             CXXFLAGS="-Wno-cpp -Wno-deprecated-declarations -Wno-invalid-offsetof" \
             --prefix=/usr \
@@ -31,7 +31,8 @@ RUN set -euo pipefail && \
             --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION/2/}*.so* | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
             PYTHON="$(which python${PYTHON_VERSION})" && \
         make -j$(nproc) && \
-        make install-strip; \
+        make install-strip && \
+        apk del --purge python-dependencies; \
     done && \
     # Remove temp files
     cd && \
