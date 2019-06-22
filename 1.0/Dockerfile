@@ -40,5 +40,6 @@ RUN set -euo pipefail && \
     rm -rf /tmp/*
 
 RUN ls -al /usr/lib/python*/site-packages
+RUN apk --update add coreutils binutils
 RUN du -ch -d 10 / | sort -rh | head -100
 RUN find / -type f -exec du -ah {} + | sort -rh | head -100
