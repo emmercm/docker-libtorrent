@@ -144,7 +144,7 @@ workflows:
       # https://github.com/arvidn/libtorrent/releases
       - build:
           name: "1.2"
-          version: 1.2.1
+          version: 1.2.2
           tags: 1.2 1.2-alpine 1 1-alpine latest
       - build:
           name: "1.1"
