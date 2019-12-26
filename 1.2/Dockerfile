@@ -11,7 +11,7 @@ ARG VERSION=1.2.[0-9]+
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
+    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl py2-pip && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
