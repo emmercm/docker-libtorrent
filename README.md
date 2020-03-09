@@ -1,8 +1,8 @@
 [![](https://badgen.net/badge/emmercm/libtorrent/blue?icon=docker)](https://hub.docker.com/r/emmercm/libtorrent)
-[![](https://badgen.net/docker/pulls/emmercm/libtorrent?icon=docker)](https://hub.docker.com/r/emmercm/libtorrent)
+[![](https://badgen.net/docker/pulls/emmercm/libtorrent?icon=docker&label=pulls)](https://hub.docker.com/r/emmercm/libtorrent)
+[![](https://badgen.net/docker/stars/emmercm/libtorrent?icon=docker&label=stars)](https://hub.docker.com/r/emmercm/libtorrent)
 
 [![](https://badgen.net/badge/emmercm/docker-libtorrent/purple?icon=github)](https://github.com/emmercm/docker-libtorrent)
-[![](https://badgen.net/circleci/github/emmercm/docker-libtorrent/master?icon=circleci)](https://github.com/emmercm/docker-libtorrent/blob/master/.circleci/config.yml)
 [![](https://badgen.net/github/license/emmercm/docker-libtorrent?color=grey)](https://github.com/emmercm/docker-libtorrent/blob/master/LICENSE)
 
 Base images with libtorrent compiled.
