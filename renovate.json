@@ -8,6 +8,10 @@
   "automerge": true,
   "packageRules": [
     {
+      "paths": [".circleci/**"],
+      "enabled": false
+    },
+    {
       "paths": [
         "0.16/Dockerfile",
         "1.0/Dockerfile"
