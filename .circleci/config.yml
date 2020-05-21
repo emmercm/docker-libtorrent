@@ -7,7 +7,7 @@ references:
 executors:
   docker:
     docker:
-      - image: docker:stable@sha256:ee7a596138fe0d967c5151c36686971859e2d1931eda1df6c23c90933a16d27f
+      - image: docker:stable
 
 jobs:
   build:
@@ -42,8 +42,8 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
+            cd ${VERSION%.*}
             docker build \
-              --file=${VERSION%.*}/Dockerfile \
               --cache-from=${REPO_NAME}:${VERSION} \
               --build-arg VERSION=${VERSION} \
               --tag ${REPO_NAME}:${VERSION} \
