@@ -20,7 +20,7 @@ RUN set -euo pipefail && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     for PYTHON_VERSION in $(seq 2 3); do \
-        apk --update add --no-cache                               boost-python${PYTHON_VERSION} && \
+        apk --update add --no-cache                               python${PYTHON_VERSION} boost-python${PYTHON_VERSION} && \
         apk --update add --no-cache --virtual python-dependencies python${PYTHON_VERSION}-dev && \
         ./configure \
             --prefix=/usr \
