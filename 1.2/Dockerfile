@@ -11,7 +11,7 @@ ARG VERSION=1.2.[0-9]+
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl py2-pip && \
+    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
@@ -20,7 +20,7 @@ RUN set -euo pipefail && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     for PYTHON_VERSION in $(seq 2 3); do \
-        apk --update add --no-cache                               boost-python${PYTHON_VERSION} && \
+        (apk --update add --no-cache                               python${PYTHON_VERSION} boost-python${PYTHON_VERSION} && \
         apk --update add --no-cache --virtual python-dependencies python${PYTHON_VERSION}-dev && \
         ./configure \
             --prefix=/usr \
@@ -30,7 +30,7 @@ RUN set -euo pipefail && \
             PYTHON="$(which python${PYTHON_VERSION})" && \
         make -j$(nproc) && \
         make install-strip && \
-        apk del --purge python-dependencies; \
+        apk del --purge python-dependencies) || exit 1; \
     done && \
     # Remove temp files
     cd && \
