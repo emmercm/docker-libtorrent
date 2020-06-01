@@ -150,7 +150,6 @@ workflows:
           name: "1.1"
           version: 1.1.14
           tags: 1.1 1.1-alpine
-      # (Below locked at lower Alpine versions for old Boost versions)
       - build:
           name: "1.0"
           version: 1.0.11

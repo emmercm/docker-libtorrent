@@ -39,7 +39,7 @@ These images contain 4 main things:
 
 # Why full images?
 
-As of writing there is no `libtorrent-dev` or `libtorrent-rasterbar-dev` package in the Alpine main repository. It can be time-consuming or difficult to compile libtorrent so this saves the end user time and headache.
+As of writing the `libtorrent`/`libtorrent-dev` in the Alpine main repository is many years out of date. It can be time-consuming or difficult to compile libtorrent so this saves the end user time and headache.
 
 # How to use these images
 
@@ -62,6 +62,11 @@ See [emmercm/qbittorrent](https://hub.docker.com/r/emmercm/qbittorrent) for an e
 ## `emmercm/libtorrent:<version>-alpine`
 
 The default image variant, these images are based on [the `alpine` official image](https://hub.docker.com/_/alpine) which is designed to be "small, simple, and secure." This variant is recommended for when final image size is a concern.
+
+Some of these builds use an outdated version of Alpine on purpose:
+
+- v0.16 and v1.0 are locked to Alpine v3.7 (2017) because support for [`boost-dev`](https://pkgs.alpinelinux.org/packages?name=boost-dev&branch=edge) v1.66+ wasn't added until [`libtorrent` v1.1.6](https://github.com/arvidn/libtorrent/releases/tag/libtorrent-1_1_6).
+- v1.1 and v1.2 are locked to Alpine v3.11 (2020) because support for [`boost-python2` was removed in Alpine v3.12](https://git.alpinelinux.org/aports/commit/main/boost/APKBUILD?id=c7eee7c57fbcbe012646766604d9bcd89368d6e4).
 
 # License
 
