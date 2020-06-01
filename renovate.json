@@ -14,7 +14,9 @@
     {
       "paths": [
         "0.16/Dockerfile",
-        "1.0/Dockerfile"
+        "1.0/Dockerfile",
+        "1.1/Dockerfile",
+        "1.2/Dockerfile"
       ],
       "major": {
         "enabled": false
