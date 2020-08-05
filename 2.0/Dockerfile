@@ -11,25 +11,20 @@ ARG VERSION=2.0.[0-9]+
 RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
-    apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev && \
+    apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev python3-dev && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
-    for PYTHON_VERSION in $(seq 3 3); do \
-        (apk --update add --no-cache                               python${PYTHON_VERSION} boost-python${PYTHON_VERSION} && \
-        apk --update add --no-cache --virtual python-dependencies python${PYTHON_VERSION}-dev && \
-        ./configure \
-            --prefix=/usr \
-            --with-libiconv \
-            --enable-python-binding && \
-        make V=1 -j$(nproc) && \
-        make install-strip && \
-        apk del --purge python-dependencies) || exit 1; \
-    done && \
+    ./configure \
+        --prefix=/usr \
+        --with-libiconv \
+        --enable-python-binding && \
+    make V=1 -j$(nproc) && \
+    make install-strip && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
