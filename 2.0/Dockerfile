@@ -25,9 +25,7 @@ RUN set -euo pipefail && \
         ./configure \
             --prefix=/usr \
             --with-libiconv \
-            --enable-python-binding \
-            --with-boost-python="$(ls -1 /usr/lib/libboost_python${PYTHON_VERSION/2/}*.so* | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
-            PYTHON="$(which python${PYTHON_VERSION})" && \
+            --enable-python-binding && \
         make V=1 -j$(nproc) && \
         make install-strip && \
         apk del --purge python-dependencies) || exit 1; \
