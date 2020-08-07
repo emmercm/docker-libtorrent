@@ -23,7 +23,7 @@ From [www.libtorrent.org](https://www.libtorrent.org/):
 
 > _libtorrent is a feature complete C++ bittorrent implementation focusing on efficiency and scalability. It runs on embedded devices as well as desktops. It boasts a well documented library interface that is easy to use._
 
-[deluge](http://deluge-torrent.org/) and [qBittorrent](http://www.qbittorrent.org/) are popular torrent clients built with libtorrent.
+[Deluge](http://deluge-torrent.org/) and [qBittorrent](http://www.qbittorrent.org/) are popular torrent clients built with libtorrent.
 
 libtorrent is written in C++ but has bindings for [Python](https://www.libtorrent.org/python_binding.html), [Java](https://github.com/frostwire/frostwire-jlibtorrent/), [Go](https://github.com/steeve/libtorrent-go), and [Node.js](https://github.com/fanatid/node-libtorrent).
 
@@ -67,7 +67,7 @@ The default image variant, these images are based on [the `alpine` official imag
 Some of these builds use an outdated version of Alpine on purpose:
 
 - v0.16 and v1.0 are locked to Alpine v3.7 (2017) because support for [`boost-dev`](https://pkgs.alpinelinux.org/packages?name=boost-dev&branch=edge) v1.66+ wasn't added until [`libtorrent` v1.1.6](https://github.com/arvidn/libtorrent/releases/tag/libtorrent-1_1_6).
-- v1.1 and v1.2 are locked to Alpine v3.11 (2020) because support for [`boost-python2` was removed in Alpine v3.12](https://git.alpinelinux.org/aports/commit/main/boost/APKBUILD?id=c7eee7c57fbcbe012646766604d9bcd89368d6e4).
+- v1.1 and v1.2 are locked to Alpine v3.11 (2020) because support for [`boost-python2`](https://pkgs.alpinelinux.org/packages?name=boost-python2&branch=v3.11) was [removed in Alpine v3.12](https://git.alpinelinux.org/aports/commit/main/boost/APKBUILD?id=c7eee7c57fbcbe012646766604d9bcd89368d6e4).
 
 # License
 
