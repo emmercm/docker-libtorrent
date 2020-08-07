@@ -14,7 +14,7 @@ RUN set -euo pipefail && \
     apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev python3-dev && \
     # Checkout from source
-    git clone https://github.com/arvidn/libtorrent.git && \
+    git clone --recurse-submodules https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
     git checkout $( \ 
         git tag | \
