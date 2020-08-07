@@ -16,7 +16,22 @@ RUN set -euo pipefail && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
-    git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
+    git checkout $( \ 
+        git tag | \
+        awk '{print $1" "$1}' | \
+        # Get rid of prefix
+        sed 's/^libtorrent[^0-9]//i' | \
+        # Use periods for major.minor.patch
+        sed 's/[^a-zA-Z0-9.]\([0-9]\+.* .*\)/.\1/g' | \
+        sed 's/[^a-zA-Z0-9.]\([0-9]\+.* .*\)/.\1/g' | \
+        # Make sure patch version exists
+        sed 's/^\([0-9]\+\.[0-9]\+\)\([^0-9.].\+\)/\1.0\2/' | \
+        # Get the right version
+        sort --version-sort --key=1,1 | \
+        grep "${VERSION}" | \
+        tail -1 | \
+        awk '{print $2}' \
+    ) && \
     git clean --force && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
