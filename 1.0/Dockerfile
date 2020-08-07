@@ -17,6 +17,7 @@ RUN set -euo pipefail && \
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
     git checkout $(git tag --sort=-version:refname | grep "${VERSION}" | head -1) && \
+    git clean --force && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     for PYTHON_VERSION in $(seq 2 3); do \
