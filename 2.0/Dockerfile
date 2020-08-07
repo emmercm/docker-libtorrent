@@ -1,7 +1,5 @@
 # Instructions on building libtorrent:
-#   https://github.com/qbittorrent/qBittorrent/wiki/Compiling-qBittorrent-on-Debian-and-Ubuntu#libtorrent
-#   https://discourse.osmc.tv/t/howto-update-compile-qbittorrent-nox/19726/3
-#   https://git.alpinelinux.org/aports/tree/testing/libtorrent-rasterbar/APKBUILD
+#   https://github.com/arvidn/libtorrent/blob/libtorrent-2.0-RC2/docs/building.rst
 
 FROM alpine:3.12.0
 
@@ -12,7 +10,7 @@ RUN set -euo pipefail && \
     # Install both library dependencies and build dependencies
     cd $(mktemp -d) && \
     apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev python3-dev && \
+    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git python3-dev samurai && \
     # Checkout from source
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
@@ -33,15 +31,21 @@ RUN set -euo pipefail && \
         awk '{print $2}' \
     ) && \
     git clean --force && \
-    # Run autoconf/automake, configure, and make
-    ./autotool.sh && \
-    ./configure \
-        --prefix=/usr \
-        --with-libiconv \
-        --enable-python-binding && \
-    make V=1 -j$(nproc) && \
-    make install-strip && \
     git submodule update --depth=1 --init --recursive && \
+    # Run make
+    for DIR in /usr/lib/cmake/boost_python*; do \
+        (ln -s "${DIR}/boost_python-config.cmake" "${DIR}/boost_python3-config.cmake" && \
+        ln -s "${DIR}/boost_python-config-version.cmake" "${DIR}/boost_python3-config-version.cmake") || exit 1; \
+    done && \
+    mkdir build && \
+    cd build && \
+    cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_STANDARD=14 \
+        -Dpython-bindings=ON \
+        -Dboost_python3_DIR="$(find /usr/lib/cmake -maxdepth 1 -type d -name 'boost_python*')" \
+        -G Ninja .. && \
+    ninja -j$(nproc) && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
