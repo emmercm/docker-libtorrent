@@ -14,7 +14,7 @@ RUN set -euo pipefail && \
     apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev && \
     # Checkout from source
-    git clone --recurse-submodules https://github.com/arvidn/libtorrent.git && \
+    git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
     git checkout $( \ 
         git tag | \
@@ -33,6 +33,7 @@ RUN set -euo pipefail && \
         awk '{print $2}' \
     ) && \
     git clean --force && \
+    git submodule update --depth=1 --init --recursive && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     ./configure \
