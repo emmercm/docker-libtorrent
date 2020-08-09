@@ -160,39 +160,39 @@ workflows:
     jobs:
       - lint:
           name: "1.2-lint"
-          version: 1.2
+          version: "1.2"
       - lint:
           name: "1.1-lint"
-          version: 1.1
+          version: "1.1"
       - lint:
           name: "1.0-lint"
-          version: 1.0
+          version: "1.0"
       - lint:
           name: "0.16-lint"
-          version: 0.16
+          version: "0.16"
 
       # https://github.com/arvidn/libtorrent/releases
       - build:
           name: "1.2-build"
-          version: 1.2.8
+          version: "1.2.8"
           tags: 1.2 1.2-alpine 1 1-alpine latest
           requires:
             - "1.2-lint"
       - build:
           name: "1.1-build"
-          version: 1.1.14
+          version: "1.1.14"
           tags: 1.1 1.1-alpine
           requires:
             - "1.1-lint"
       - build:
           name: "1.0-build"
-          version: 1.0.11
+          version: "1.0.11"
           tags: 1.0 1.0-alpine
           requires:
             - "1.0-lint"
       - build:
           name: "0.16-build"
-          version: 0.16.17
+          version: "0.16.17"
           tags: 0.16 0.16-alpine 0 0-alpine
           requires:
             - "0.16-lint"
