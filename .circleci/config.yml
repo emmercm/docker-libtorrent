@@ -10,6 +10,13 @@ executors:
       - image: docker:stable
 
 jobs:
+  dummy:
+    executor: docker
+    steps:
+      - run:
+          name: Dummy
+          command: echo ok
+
   lint:
     parameters:
       version:
@@ -90,14 +97,6 @@ jobs:
           paths:
             - "*"
 
-  test:
-    executor: docker
-    steps:
-      - run:
-          name: Test Docker Image(s)
-          command: |
-            echo ok
-
   push:
     executor: docker
     environment:
@@ -170,6 +169,13 @@ workflows:
       - lint:
           name: "0.16-lint"
           version: "0.16"
+      - dummy:
+          name: "lint"
+          requires:
+            - "1.2-lint"
+            - "1.1-lint"
+            - "1.0-lint"
+            - "0.16-lint"
 
       # https://github.com/arvidn/libtorrent/releases
       - build:
@@ -177,27 +183,27 @@ workflows:
           version: "1.2.8"
           tags: 1.2 1.2-alpine 1 1-alpine latest
           requires:
-            - "1.2-lint"
+            - "lint"
       - build:
           name: "1.1-build"
           version: "1.1.14"
           tags: 1.1 1.1-alpine
           requires:
-            - "1.1-lint"
+            - "lint"
       - build:
           name: "1.0-build"
           version: "1.0.11"
           tags: 1.0 1.0-alpine
           requires:
-            - "1.0-lint"
+            - "lint"
       - build:
           name: "0.16-build"
           version: "0.16.17"
           tags: 0.16 0.16-alpine 0 0-alpine
           requires:
-            - "0.16-lint"
-
-      - test:
+            - "lint"
+      - dummy:
+          name: "test"
           requires:
             - "1.2-build"
             - "1.1-build"
