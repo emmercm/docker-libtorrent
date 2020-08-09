@@ -10,6 +10,22 @@ executors:
       - image: docker:stable
 
 jobs:
+  lint:
+    parameters:
+      version:
+        type: string
+    environment:
+      VERSION: << parameters.version >>
+      <<: *environment
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Run hadolint
+          command: |
+            cd ${VERSION%.*}
+            docker run --rm --interactive hadolint/hadolint < Dockerfile
+
   build:
     parameters:
       version:
@@ -141,30 +157,51 @@ workflows:
   version: 2.1
   build-test-push:
     jobs:
+      - lint:
+          name: "1.2-lint"
+          version: 1.2
+      - lint:
+          name: "1.1-lint"
+          version: 1.1
+      - lint:
+          name: "1.0-lint"
+          version: 1.0
+      - lint:
+          name: "0.16-lint"
+          version: 0.16
+
       # https://github.com/arvidn/libtorrent/releases
       - build:
-          name: "1.2"
+          name: "1.2-build"
           version: 1.2.8
           tags: 1.2 1.2-alpine 1 1-alpine latest
+          requires:
+            - "1.2-lint"
       - build:
-          name: "1.1"
+          name: "1.1-build"
           version: 1.1.14
           tags: 1.1 1.1-alpine
+          requires:
+            - "1.1-lint"
       - build:
-          name: "1.0"
+          name: "1.0-build"
           version: 1.0.11
           tags: 1.0 1.0-alpine
+          requires:
+            - "1.0-lint"
       - build:
-          name: "0.16"
+          name: "0.16-build"
           version: 0.16.17
           tags: 0.16 0.16-alpine 0 0-alpine
+          requires:
+            - "0.16-lint"
 
       - test:
           requires:
-            - "1.2"
-            - "1.1"
-            - "1.0"
-            - "0.16"
+            - "1.2-build"
+            - "1.1-build"
+            - "1.0-build"
+            - "0.16-build"
       
       - push:
           requires:
