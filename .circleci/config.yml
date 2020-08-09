@@ -115,8 +115,8 @@ jobs:
           name: Publish Docker Image
           command: |
             echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-            for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" ${REPO_NAME}); do
-              docker push ${TAG}
+            for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" "${REPO_NAME}"); do
+              docker push "${TAG}"
             done
       - run:
           name: Update MicroBadger
