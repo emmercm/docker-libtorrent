@@ -180,7 +180,7 @@ workflows:
       # https://github.com/arvidn/libtorrent/releases
       - build:
           name: "1.2-build-test"
-          version: "1.2.9"
+          version: "1.2.10"
           tags: 1.2 1.2-alpine 1 1-alpine latest
           requires:
             - "lint"
