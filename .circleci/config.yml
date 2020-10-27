@@ -10,6 +10,30 @@ executors:
       - image: docker:stable
 
 jobs:
+  dummy:
+    executor: docker
+    steps:
+      - run:
+          name: Dummy
+          command: echo ok
+
+  lint:
+    parameters:
+      version:
+        type: string
+    executor: docker
+    environment:
+      VERSION: << parameters.version >>
+      <<: *environment
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Run hadolint
+          command: |
+            cd "${VERSION}"
+            docker run --rm --interactive hadolint/hadolint < Dockerfile
+
   build:
     parameters:
       version:
@@ -42,28 +66,28 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            cd ${VERSION%.*}
+            cd "${VERSION%.*}"
             docker build \
-              --cache-from=${REPO_NAME}:${VERSION} \
-              --build-arg VERSION=${VERSION} \
-              --tag ${REPO_NAME}:${VERSION} \
-              --tag ${REPO_NAME}:${VERSION}-alpine .
+              --cache-from="${REPO_NAME}:${VERSION}" \
+              --build-arg VERSION="${VERSION}" \
+              --tag "${REPO_NAME}:${VERSION}" \
+              --tag "${REPO_NAME}:${VERSION}-alpine" .
             for TAG in ${TAGS}; do
-              docker tag ${REPO_NAME}:${VERSION} ${REPO_NAME}:${TAG}
+              docker tag "${REPO_NAME}:${VERSION}" "${REPO_NAME}:${TAG}"
             done
       - run:
           name: Test Docker Image
           command: |
             apk add --no-cache curl
             curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
-            container-structure-test test --config ${VERSION%.*}/container-structure-test.yml --image ${REPO_NAME}:${VERSION}
+            container-structure-test test --config "${VERSION%.*}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
       - run:
           name: Save Docker Image(s) to Cache
           command: |
             if [[ ! -e /cache ]]; then
               mkdir /cache
             fi
-            docker save --output /cache/${VERSION}.tar ${REPO_NAME}
+            docker save --output "/cache/${VERSION}.tar" "${REPO_NAME}"
       - save_cache:
           key: v4-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}
           paths:
@@ -72,14 +96,6 @@ jobs:
           root: /cache
           paths:
             - "*"
-
-  test:
-    executor: docker
-    steps:
-      - run:
-          name: Test Docker Image(s)
-          command: |
-            echo ok
 
   push:
     executor: docker
@@ -99,8 +115,8 @@ jobs:
           name: Publish Docker Image
           command: |
             echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-            for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" ${REPO_NAME}); do
-              docker push ${TAG}
+            for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" "${REPO_NAME}"); do
+              docker push "${TAG}"
             done
       - run:
           name: Update MicroBadger
@@ -115,60 +131,85 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install docker-pushrm
+          command: |
+            if [[ ! -d "$HOME/.docker/cli-plugins" ]]; then
+              mkdir -p "$HOME/.docker/cli-plugins"
+            fi
+            wget https://github.com/christian-korneck/docker-pushrm/releases/download/v1.5.0/docker-pushrm_linux_amd64 -O "$HOME/.docker/cli-plugins/docker-pushrm"
+            chmod +x "$HOME/.docker/cli-plugins/docker-pushrm"
+      - run:
+          # Can't use 2FA: https://github.com/docker/roadmap/issues/115
           name: Update Docker Hub Description
           command: |
-            apk add --no-cache curl jq
-            TOKEN=$(curl \
-              --silent \
-              --request POST \
-              https://hub.docker.com/v2/users/login/ \
-              --header "Content-Type: application/json" \
-              --data '{"username":"'"${DOCKERHUB_USERNAME}"'", "password":"'"${DOCKERHUB_PASS}"'"}' | \
-              jq -r .token)
-            jq \
-              --null-input \
-              --arg DESCRIPTION "$(cat README.md | grep '^\w' | head -1)" \
-              --arg FULL_DESCRIPTION "$(cat README.md)" \
-              '{"description":$DESCRIPTION, "full_description":$FULL_DESCRIPTION}' | \
-              curl \
-                --request PATCH \
-                https://hub.docker.com/v2/repositories/${REPO_NAME}/ \
-                --header "Content-Type: application/json" \
-                --header "Authorization: JWT ${TOKEN}" \
-                --data @-
+            echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+            docker pushrm "${REPO_NAME}" --short "$(cat README.md | grep '^\w' | head -1)"
 
 workflows:
   version: 2.1
   build-test-push:
     jobs:
+      - lint:
+          name: "2.0-lint"
+          version: "2.0"
+      - lint:
+          name: "1.2-lint"
+          version: "1.2"
+      - lint:
+          name: "1.1-lint"
+          version: "1.1"
+      - lint:
+          name: "1.0-lint"
+          version: "1.0"
+      - lint:
+          name: "0.16-lint"
+          version: "0.16"
+      - dummy:
+          name: "lint"
+          requires:
+            - "2.0-lint"
+            - "1.2-lint"
+            - "1.1-lint"
+            - "1.0-lint"
+            - "0.16-lint"
+
       # https://github.com/arvidn/libtorrent/releases
       - build:
-          name: "2.0"
+          name: "2.0-build-test"
           version: 2.0.0
           tags: 2.0 2.0-alpine 2 2-alpine latest
       - build:
-          name: "1.2"
-          version: 1.2.8
-          tags: 1.2 1.2-alpine 1 1-alpine latest
-      - build:
-          name: "1.1"
-          version: 1.1.14
-          tags: 1.1 1.1-alpine
-      - build:
-          name: "1.0"
-          version: 1.0.11
-          tags: 1.0 1.0-alpine
-      - build:
-          name: "0.16"
-          version: 0.16.17
-          tags: 0.16 0.16-alpine 0 0-alpine
-
-      - test:
+          name: "1.2-build-test"
+          version: "1.2.10"
+          tags: 1.2 1.2-alpine 1 1-alpine
           requires:
-            - "1.2"
-            - "1.1"
-            - "1.0"
-            - "0.16"
+            - "lint"
+      - build:
+          name: "1.1-build-test"
+          version: "1.1.14"
+          tags: 1.1 1.1-alpine
+          requires:
+            - "lint"
+      - build:
+          name: "1.0-build-test"
+          version: "1.0.11"
+          tags: 1.0 1.0-alpine
+          requires:
+            - "lint"
+      - build:
+          name: "0.16-build-test"
+          version: "0.16.17"
+          tags: 0.16 0.16-alpine 0 0-alpine
+          requires:
+            - "lint"
+      - dummy:
+          name: "test"
+          requires:
+            - "2.0-build-test"
+            - "1.2-build-test"
+            - "1.1-build-test"
+            - "1.0-build-test"
+            - "0.16-build-test"
       
       - push:
           requires:
