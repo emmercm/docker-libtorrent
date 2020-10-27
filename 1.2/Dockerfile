@@ -17,7 +17,7 @@ RUN apk --update add --no-cache                              boost-system libgcc
     cd "$(mktemp -d)" && \
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
-    git checkout $( \ 
+    git checkout "$( \ 
         git tag | \
         awk '{print $1" "$1}' | \
         # Get rid of prefix
@@ -32,7 +32,7 @@ RUN apk --update add --no-cache                              boost-system libgcc
         grep "${VERSION}" | \
         tail -1 | \
         awk '{print $2}' \
-    ) && \
+    )" && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
     # Run autoconf/automake, configure, and make
