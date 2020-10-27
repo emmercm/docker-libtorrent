@@ -45,17 +45,22 @@ RUN set -euo pipefail && \
 
     mkdir build && \
     cd build && \
-    for SHARED in $(echo -e "ON\nOFF"); do \
-        (cmake \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_CXX_STANDARD=14 \
-            -DBUILD_SHARED_LIBS=${SHARED} \
-            -Dpython-bindings=ON \
-            -Dboost_python3_DIR="$(find /usr/lib/cmake -maxdepth 1 -type d -name 'boost_python*')" \
-            -G Ninja .. && \
-        ninja -j$(nproc) && \
-        cmake --install .) || exit 1; \
-    done && \
+    cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_STANDARD=14 \
+        -DBUILD_SHARED_LIBS=OFF \
+        -G Ninja .. && \
+    ninja -j$(nproc) && \
+    cmake --install . && \
+    cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_STANDARD=14 \
+        -DBUILD_SHARED_LIBS=ON \
+        -Dpython-bindings=ON \
+        # -Dboost_python3_DIR="$(find /usr/lib/cmake -maxdepth 1 -type d -name 'boost_python*')" \
+        -G Ninja .. && \
+    ninja -j$(nproc) && \
+    cmake --install . && \
     # ls -al && \
     # ls -al /usr/lib && \
 
