@@ -32,37 +32,47 @@ RUN set -euo pipefail && \
     )" && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
-    # Run make
+    # Run b2 (config from the Makefile)
     for DIR in /usr/lib/cmake/boost_python*; do \
         (ln -s "${DIR}/boost_python-config.cmake" "${DIR}/boost_python3-config.cmake" && \
         ln -s "${DIR}/boost_python-config-version.cmake" "${DIR}/boost_python3-config-version.cmake") || exit 1; \
     done && \
 
-    # b2 -j$(nproc) install cxxstd=14 variant=release link=static --prefix=/usr && \
-    # b2 -j$(nproc) install cxxstd=14 variant=release link=shared --prefix=/usr && \
-    # cd bindings/python && \
-    # b2 -j$(nproc) stage_module stage_dependencies && \
+    PREFIX=/usr && \
+    # BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
+    BUILD_CONFIG="release cxxstd=14 warnings=off address-model=32 -j$(nproc)" && \
+    # BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
+    # BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
+    cd bindings/python && \
+    # LIBTORRENT_PYTHON_INTERPRETER="$(which python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} stage_module stage_dependencies && \
+    sed -i 's/address-model=64/address-model=32/g' setup.py && \
+    python3 setup.py install && \
 
-    mkdir build && \
-    cd build && \
-    cmake \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_CXX_STANDARD=14 \
-        -DBUILD_SHARED_LIBS=OFF \
-        -G Ninja .. && \
-    ninja -j$(nproc) && \
-    cmake --install . && \
-    cmake \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_CXX_STANDARD=14 \
-        -DBUILD_SHARED_LIBS=ON \
-        -Dpython-bindings=ON \
-        # -Dboost_python3_DIR="$(find /usr/lib/cmake -maxdepth 1 -type d -name 'boost_python*')" \
-        -G Ninja .. && \
-    ninja -j$(nproc) && \
-    cmake --install . && \
-    # ls -al && \
-    # ls -al /usr/lib && \
+    # find . -type f -print0 | xargs -0 sed -i 's/address-model=64/address-model=32/g' && \
+    # cat Makefile | grep address && \
+    # mkdir build && \
+    # cd build && \
+    # # cmake \
+    # #     -DCMAKE_BUILD_TYPE=Release \
+    # #     -DCMAKE_CXX_STANDARD=14 \
+    # #     -DBUILD_SHARED_LIBS=OFF \
+    # #     -G Ninja .. && \
+    # # ninja -j$(nproc) && \
+    # # cmake --install . && \
+    # cmake \
+    #     -DCMAKE_BUILD_TYPE=Release \
+    #     -DCMAKE_CXX_STANDARD=14 \
+    #     -DBUILD_SHARED_LIBS=ON \
+    #     -Dpython-bindings=ON \
+    #     # -Dboost_python3_DIR="$(find /usr/lib/cmake -maxdepth 1 -type d -name 'boost_python*')" \
+    #     -G Ninja .. && \
+    # ninja -j$(nproc) && \
+    # cmake --install . && \
+
+    ls -al && \
+    ls -al /usr/lib && \
+    ls -al /usr/lib/python3.8/site-packages && \
+    # ls -al /usr/lib/python3.8/site-packages/libtorrent.egg-info && \
 
     # Remove temp files
     cd && \
