@@ -176,7 +176,7 @@ workflows:
       # https://github.com/arvidn/libtorrent/releases
       - build:
           name: "2.0-build-test"
-          version: 2.0.0
+          version: 2.0.1
           tags: 2.0 2.0-alpine 2 2-alpine latest
       - build:
           name: "1.2-build-test"
