@@ -180,7 +180,7 @@ workflows:
           tags: 2.0 2.0-alpine 2 2-alpine latest
       - build:
           name: "1.2-build-test"
-          version: "1.2.10"
+          version: "1.2.11"
           tags: 1.2 1.2-alpine 1 1-alpine
           requires:
             - "lint"
