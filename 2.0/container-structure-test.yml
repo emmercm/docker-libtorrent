@@ -16,5 +16,6 @@ commandTests:
   - name: "Python 3"
     command: "python3"
     args: ["-c", "import libtorrent; print(libtorrent.version)"]
+    expectedOutput: ["2.0"]
     excludedError: [".+"]
     exitCode: 0
