@@ -5,13 +5,14 @@ FROM alpine:3.12.1
 
 ARG VERSION=2.0.[0-9]+
 
+SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
+
 # Build libtorrent-rasterbar-dev
-RUN set -euo pipefail && \
-    # Install both library dependencies and build dependencies
-    cd $(mktemp -d) && \
-    apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
+# hadolint ignore=DL3003,DL3018,SC2086
+RUN apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
     apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git py3-setuptools python3-dev samurai && \
     # Checkout from source
+    cd "$(mktemp -d)" && \
     git clone https://github.com/arvidn/libtorrent.git && \
     cd libtorrent && \
     git checkout "$( \ 
@@ -38,7 +39,7 @@ RUN set -euo pipefail && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
     cd bindings/python && \
-    LIBTORRENT_PYTHON_INTERPRETER="$(which python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system&& \
+    LIBTORRENT_PYTHON_INTERPRETER="$(command -v python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system&& \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
