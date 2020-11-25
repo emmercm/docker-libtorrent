@@ -41,12 +41,12 @@ RUN set -euo pipefail && \
     PREFIX=/usr && \
     # BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
     BUILD_CONFIG="release cxxstd=14 warnings=off address-model=32 -j$(nproc)" && \
-    # BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
-    # BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
+    BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
+    BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
     cd bindings/python && \
-    # LIBTORRENT_PYTHON_INTERPRETER="$(which python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} stage_module stage_dependencies && \
-    sed -i 's/address-model=64/address-model=32/g' setup.py && \
-    python3 setup.py install && \
+    LIBTORRENT_PYTHON_INTERPRETER="$(which python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system&& \
+    # sed -i 's/address-model=64/address-model=32/g' setup.py && \
+    # python3 setup.py install && \
 
     # find . -type f -print0 | xargs -0 sed -i 's/address-model=64/address-model=32/g' && \
     # cat Makefile | grep address && \
