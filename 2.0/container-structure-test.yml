@@ -1,27 +1,21 @@
 schemaVersion: 2.0.0
 
 fileExistenceTests:
-  # libtorrent-rasterbar files
-  - name: "libtorrent-rasterbar.a"
-    path: "/usr/lib/libtorrent-rasterbar.a"
+  # libtorrent files
+  - name: "libtorrent.a"
+    path: "/usr/lib/libtorrent.a"
     shouldExist: true
     permissions: "-rw-r--r--"
   - name: "libtorrent-rasterbar.so"
-    path: "/usr/lib/libtorrent-rasterbar.so"
+    path: "/usr/lib/libtorrent-rasterbar.so.2.0"
     shouldExist: true
-    permissions: "Lrwxrwxrwx"
+    permissions: "-rwxr-xr-x"
 
 commandTests:
   # Python tests (https://dev.deluge-torrent.org/wiki/Building/libtorrent#UbuntuDebian)
-  - name: "Python 2"
-    command: "python"
-    args: ["-c", "import libtorrent; print libtorrent.version "]
-    expectedOutput: ["1.1"]
-    excludedError: [".+"]
-    exitCode: 0
   - name: "Python 3"
     command: "python3"
     args: ["-c", "import libtorrent; print(libtorrent.version)"]
-    expectedOutput: ["1.1"]
+    expectedOutput: ["2.0"]
     excludedError: [".+"]
     exitCode: 0

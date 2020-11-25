@@ -150,6 +150,9 @@ workflows:
   build-test-push:
     jobs:
       - lint:
+          name: "2.0-lint"
+          version: "2.0"
+      - lint:
           name: "1.2-lint"
           version: "1.2"
       - lint:
@@ -164,6 +167,7 @@ workflows:
       - dummy:
           name: "lint"
           requires:
+            - "2.0-lint"
             - "1.2-lint"
             - "1.1-lint"
             - "1.0-lint"
@@ -171,9 +175,15 @@ workflows:
 
       # https://github.com/arvidn/libtorrent/releases
       - build:
+          name: "2.0-build-test"
+          version: "2.0.1"
+          tags: 2.0 2.0-alpine 2 2-alpine latest
+          requires:
+            - "lint"
+      - build:
           name: "1.2-build-test"
           version: "1.2.11"
-          tags: 1.2 1.2-alpine 1 1-alpine latest
+          tags: 1.2 1.2-alpine 1 1-alpine
           requires:
             - "lint"
       - build:
@@ -197,6 +207,7 @@ workflows:
       - dummy:
           name: "test"
           requires:
+            - "2.0-build-test"
             - "1.2-build-test"
             - "1.1-build-test"
             - "1.0-build-test"
