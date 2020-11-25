@@ -32,11 +32,7 @@ RUN set -euo pipefail && \
     )" && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
-    # Run b2 (config from the Makefile)
-    for DIR in /usr/lib/cmake/boost_python*; do \
-        (ln -s "${DIR}/boost_python-config.cmake" "${DIR}/boost_python3-config.cmake" && \
-        ln -s "${DIR}/boost_python-config-version.cmake" "${DIR}/boost_python3-config-version.cmake") || exit 1; \
-    done && \
+    # Run b2
     PREFIX=/usr && \
     BUILD_CONFIG="release cxxstd=14 warnings=off address-model=32 -j$(nproc)" && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
