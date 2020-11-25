@@ -35,7 +35,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
     git submodule update --depth=1 --init --recursive && \
     # Run b2
     PREFIX=/usr && \
-    BUILD_CONFIG="release cxxstd=14 warnings=off address-model=32 -j$(nproc)" && \
+    BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
     cd bindings/python && \
