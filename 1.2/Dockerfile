@@ -7,6 +7,8 @@ FROM alpine:3.11.6@sha256:39eda93d15866957feaee28f8fc5adb545276a64147445c64992ef
 
 ARG VERSION=1.2.[0-9]+
 
+COPY 5026.patch /
+
 SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
 # Build libtorrent-rasterbar-dev
@@ -35,6 +37,7 @@ RUN apk --update add --no-cache                              boost-system libgcc
     )" && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
+    git apply /5026.patch && rm /5026.patch && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
     for PYTHON_VERSION in $(seq 2 3); do \
@@ -45,7 +48,7 @@ RUN apk --update add --no-cache                              boost-system libgcc
             --with-libiconv \
             --enable-python-binding \
             --with-boost-python="$(find /usr/lib -maxdepth 1 -name "libboost_python${PYTHON_VERSION/2/}*.so*" | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
-            --with-std=c++14 \
+            --with-cxx-standard=14 \
             PYTHON="$(which "python${PYTHON_VERSION}")" && \
         make "-j$(nproc)" && \
         make install-strip && \
