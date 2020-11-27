@@ -45,6 +45,7 @@ RUN apk --update add --no-cache                              boost-system libgcc
             --with-libiconv \
             --enable-python-binding \
             --with-boost-python="$(find /usr/lib -maxdepth 1 -name "libboost_python${PYTHON_VERSION/2/}*.so*" | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
+            --with-std=c++14 \
             PYTHON="$(which "python${PYTHON_VERSION}")" && \
         make "-j$(nproc)" && \
         make install-strip && \
