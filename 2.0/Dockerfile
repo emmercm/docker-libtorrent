@@ -10,7 +10,7 @@ SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2086
 RUN apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
-    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git py3-setuptools python3-dev samurai && \
+    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git py3-setuptools python3-dev openssl-dev samurai && \
     # Checkout from source
     cd "$(mktemp -d)" && \
     git clone https://github.com/arvidn/libtorrent.git && \
@@ -39,7 +39,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
     cd bindings/python && \
-    LIBTORRENT_PYTHON_INTERPRETER="$(command -v python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system&& \
+    LIBTORRENT_PYTHON_INTERPRETER="$(command -v python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
