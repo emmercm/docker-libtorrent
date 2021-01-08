@@ -38,12 +38,12 @@ jobs:
     parameters:
       directory:
         type: string
-        default: ''
+        default: ""
       version:
         type: string
       tags:
         type: string
-        default: ''
+        default: ""
     executor: docker
     environment:
       DIRECTORY: << parameters.directory >>
