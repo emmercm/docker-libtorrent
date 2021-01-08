@@ -14,7 +14,7 @@ SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2169
 RUN apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev python3-dev && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev py3-setuptools python3-dev && \
     # Checkout from source
     cd "$(mktemp -d)" && \
     git clone https://github.com/arvidn/libtorrent.git && \
