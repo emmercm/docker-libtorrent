@@ -3,9 +3,9 @@
 #   https://discourse.osmc.tv/t/howto-update-compile-qbittorrent-nox/19726/3
 #   https://git.alpinelinux.org/aports/tree/testing/libtorrent-rasterbar/APKBUILD
 
-FROM alpine:3.11.6@sha256:39eda93d15866957feaee28f8fc5adb545276a64147445c64992ef69804dbf01
+FROM alpine:3.12.3@sha256:074d3636ebda6dd446d0d00304c4454f468237fdacf08fb0eeac90bdbfa1bac7
 
-ARG VERSION=1.2.[0-9]+
+ARG VERSION=1.2.[0-9]\\+
 
 COPY 5026.patch /
 
@@ -13,8 +13,8 @@ SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2169
-RUN apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
-    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev && \
+RUN apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
+    apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev python3-dev && \
     # Checkout from source
     cd "$(mktemp -d)" && \
     git clone https://github.com/arvidn/libtorrent.git && \
@@ -40,20 +40,16 @@ RUN apk --update add --no-cache                              boost-system libgcc
     git apply /5026.patch && rm /5026.patch && \
     # Run autoconf/automake, configure, and make
     ./autotool.sh && \
-    for PYTHON_VERSION in $(seq 2 3); do \
-        (apk --update add --no-cache                               "python${PYTHON_VERSION}" "boost-python${PYTHON_VERSION}" && \
-        apk --update add --no-cache --virtual python-dependencies "python${PYTHON_VERSION}-dev" && \
-        ./configure \
-            --prefix=/usr \
-            --with-libiconv \
-            --enable-python-binding \
-            --with-boost-python="$(find /usr/lib -maxdepth 1 -name "libboost_python${PYTHON_VERSION/2/}*.so*" | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
-            --with-cxx-standard=14 \
-            PYTHON="$(which "python${PYTHON_VERSION}")" && \
-        make "-j$(nproc)" && \
-        make install-strip && \
-        apk del --purge python-dependencies) || exit 1; \
-    done && \
+    ./configure \
+        --prefix=/usr \
+        --with-libiconv \
+        --enable-python-binding \
+        --with-boost-python="$(find /usr/lib -maxdepth 1 -name "libboost_python3*.so*" | sort | head -1 | sed 's/.*.\/lib\(.*\)\.so.*/\1/')" \
+        --with-cxx-standard=14 \
+        PYTHON="$(which python3)" && \
+    make "-j$(nproc)" && \
+    make install-strip && \
+    apk del --purge python-dependencies && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \

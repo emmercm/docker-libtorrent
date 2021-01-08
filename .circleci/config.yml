@@ -36,6 +36,9 @@ jobs:
 
   build:
     parameters:
+      directory:
+        type: string
+        default: ''
       version:
         type: string
       tags:
@@ -43,6 +46,7 @@ jobs:
         default: ''
     executor: docker
     environment:
+      DIRECTORY: << parameters.directory >>
       VERSION: << parameters.version >>
       TAGS: << parameters.tags >>
       <<: *environment
@@ -66,7 +70,7 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            cd "${VERSION%.*}"
+            cd "${DIRECTORY:-${VERSION%.*}}"
             docker build \
               --cache-from="${REPO_NAME}:${VERSION}" \
               --build-arg VERSION="${VERSION}" \
@@ -153,7 +157,10 @@ workflows:
           name: "2.0-lint"
           version: "2.0"
       - lint:
-          name: "1.2-lint"
+          name: "1.2-py2-lint"
+          version: "1.2"
+      - lint:
+          name: "1.2-py3-lint"
           version: "1.2"
       - lint:
           name: "1.1-lint"
@@ -168,7 +175,8 @@ workflows:
           name: "lint"
           requires:
             - "2.0-lint"
-            - "1.2-lint"
+            - "1.2-py2-lint"
+            - "1.2-py3-lint"
             - "1.1-lint"
             - "1.0-lint"
             - "0.16-lint"
@@ -181,9 +189,14 @@ workflows:
           requires:
             - "lint"
       - build:
-          name: "1.2-build-test"
+          name: "1.2-py3-build-test"
           version: "1.2.12"
           tags: 1.2 1.2-alpine 1 1-alpine
+          requires:
+            - "lint"
+      - build:
+          name: "1.2-py2-build-test"
+          version: "1.2.11"
           requires:
             - "lint"
       - build:
@@ -208,7 +221,8 @@ workflows:
           name: "test"
           requires:
             - "2.0-build-test"
-            - "1.2-build-test"
+            - "1.2-py3-build-test"
+            - "1.2-py2-build-test"
             - "1.1-build-test"
             - "1.0-build-test"
             - "0.16-build-test"
