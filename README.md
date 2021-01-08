@@ -11,7 +11,7 @@ Base images with libtorrent compiled.
 
 | Tags | Python Bindings | Size / Layers |
 |-|-|-|
-| `2.0.1`, `2.0.1-alpine`, `2.0`, `2.0-alpine`, `2`, `2-alpine`, `latest` | v3 | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:2.0.1.svg)](https://microbadger.com/images/emmercm/libtorrent:2.0.1 "Get your own image badge on microbadger.com") |
+| `2.0.2`, `2.0.2-alpine`, `2.0`, `2.0-alpine`, `2`, `2-alpine`, `latest` | v3 | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:2.0.2.svg)](https://microbadger.com/images/emmercm/libtorrent:2.0.2 "Get your own image badge on microbadger.com") |
 | `1.2.12`, `1.2.12-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine` | v3 | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.2.12.svg)](https://microbadger.com/images/emmercm/libtorrent:1.2.12 "Get your own image badge on microbadger.com") |
 | `1.2.11`, `1.2.11-alpine` | v2, v3 | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.2.11.svg)](https://microbadger.com/images/emmercm/libtorrent:1.2.11 "Get your own image badge on microbadger.com") |
 | `1.1.14`, `1.1.14-alpine`, `1.1`, `1.1-alpine` | v2, v3 | [![](https://images.microbadger.com/badges/image/emmercm/libtorrent:1.1.14.svg)](https://microbadger.com/images/emmercm/libtorrent:1.1.14 "Get your own image badge on microbadger.com") |
