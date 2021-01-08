@@ -190,12 +190,14 @@ workflows:
             - "lint"
       - build:
           name: "1.2-py3-build-test"
+          directory: "1.2-py3"
           version: "1.2.12"
           tags: 1.2 1.2-alpine 1 1-alpine
           requires:
             - "lint"
       - build:
           name: "1.2-py2-build-test"
+          directory: "1.2-py2"
           version: "1.2.11"
           requires:
             - "lint"
