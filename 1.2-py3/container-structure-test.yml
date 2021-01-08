@@ -9,7 +9,7 @@ fileExistenceTests:
   - name: "libtorrent-rasterbar.so"
     path: "/usr/lib/libtorrent-rasterbar.so.10"
     shouldExist: true
-    permissions: "Lrwxrwxrwx"
+    permissions: "-rwxr-xr-x"
 
 commandTests:
   # Python tests (https://dev.deluge-torrent.org/wiki/Building/libtorrent#UbuntuDebian)
