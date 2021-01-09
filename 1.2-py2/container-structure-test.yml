@@ -5,7 +5,7 @@ fileExistenceTests:
   - name: "libtorrent.a"
     path: "/usr/lib/libtorrent.a"
     shouldExist: true
-    permissions: "-rwxr-xr-x"
+    permissions: "-rw-r--r--"
   - name: "libtorrent.so"
     path: "ibtorrent.so"
     shouldExist: true
