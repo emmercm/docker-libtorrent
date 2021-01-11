@@ -1,9 +1,11 @@
 # Instructions on building libtorrent:
-#   https://github.com/arvidn/libtorrent/blob/RC_2_0/docs/building.rst
+#   https://github.com/arvidn/libtorrent/blob/RC_1_2/docs/building.rst
 
 FROM alpine:3.12.3@sha256:074d3636ebda6dd446d0d00304c4454f468237fdacf08fb0eeac90bdbfa1bac7
 
-ARG VERSION=2.0.[0-9]\\+
+ARG VERSION=1.2.[0-9]\\+
+
+COPY 5026.patch /
 
 SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
@@ -33,13 +35,16 @@ RUN apk --update add --no-cache                              boost-python3 boost
     )" && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
+    git apply /5026.patch && rm /5026.patch && \
     # Run b2
     PREFIX=/usr && \
     BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
     cd bindings/python && \
-    LIBTORRENT_PYTHON_INTERPRETER="$(command -v python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
+    PYTHON_MAJOR_MINOR="$(python3 --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
+    echo "using python : ${PYTHON_MAJOR_MINOR} : $(command -v python3) : /usr/include/python${PYTHON_MAJOR_MINOR} : /usr/lib/python${PYTHON_MAJOR_MINOR} ;" > ~/user-config.jam && \
+    BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
