@@ -9,7 +9,7 @@ fileExistenceTests:
   - name: "libtorrent.so"
     path: "/usr/lib/libtorrent.so"
     shouldExist: true
-    permissions: "lrwxrwxrwx"
+    permissions: "Lrwxrwxrwx"
 
 commandTests:
   # Python tests (https://dev.deluge-torrent.org/wiki/Building/libtorrent#UbuntuDebian)
