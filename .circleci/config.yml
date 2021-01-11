@@ -38,12 +38,12 @@ jobs:
     parameters:
       directory:
         type: string
-        default: ''
+        default: ""
       version:
         type: string
       tags:
         type: string
-        default: ''
+        default: ""
     executor: docker
     environment:
       DIRECTORY: << parameters.directory >>
@@ -84,7 +84,7 @@ jobs:
           command: |
             apk add --no-cache curl
             curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
-            container-structure-test test --config "${VERSION%.*}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
+            container-structure-test test --config "${DIRECTORY:-${VERSION%.*}}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
       - run:
           name: Save Docker Image(s) to Cache
           command: |
@@ -190,12 +190,14 @@ workflows:
             - "lint"
       - build:
           name: "1.2-py3-build-test"
+          directory: "1.2-py3"
           version: "1.2.12"
           tags: 1.2 1.2-alpine 1 1-alpine
           requires:
             - "lint"
       - build:
           name: "1.2-py2-build-test"
+          directory: "1.2-py2"
           version: "1.2.11"
           requires:
             - "lint"
