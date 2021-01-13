@@ -40,9 +40,9 @@ RUN apk --update add --no-cache                              boost-python3 boost
     PREFIX=/usr && \
     BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
-    ln -s libtorrent-rasterbar.so.* libtorrent-rasterbar.so && \
+    ln -s /usr/lib/libtorrent-rasterbar.so.* /usr/lib/libtorrent-rasterbar.so && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
-    ln -s libtorrent.a libtorrent-rasterbar.a && \
+    ln -s /usr/lib/libtorrent.a /usr/lib/libtorrent-rasterbar.a && \
     cd bindings/python && \
     PYTHON_MAJOR_MINOR="$(python3 --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
     echo "using python : ${PYTHON_MAJOR_MINOR} : $(command -v python3) : /usr/include/python${PYTHON_MAJOR_MINOR} : /usr/lib/python${PYTHON_MAJOR_MINOR} ;" > ~/user-config.jam && \
