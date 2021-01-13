@@ -42,7 +42,9 @@ RUN apk --update add --no-cache                              boost-python2 boost
     PREFIX=/usr && \
     BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
+    ln -s libtorrent-rasterbar.so.* libtorrent-rasterbar.so && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
+    ln -s libtorrent.a libtorrent-rasterbar.a && \
     cd bindings/python && \
     for PYTHON_VERSION in $(seq 2 3); do \
         (PYTHON_MAJOR_MINOR="$(python${PYTHON_VERSION} --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
