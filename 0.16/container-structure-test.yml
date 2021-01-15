@@ -10,3 +10,12 @@ fileExistenceTests:
     path: "/usr/lib/libtorrent-rasterbar.so"
     shouldExist: true
     permissions: "Lrwxrwxrwx"
+
+commandTests:
+  - name: "pkgconfig"
+    setup: [["apk", "add", "pkgconfig"]]
+    command: "pkg-config"
+    args: ["--list-all"]
+    expectedOutput: ["libtorrent-rasterbar"]
+    excludedError: [".+"]
+    exitCode: 0
