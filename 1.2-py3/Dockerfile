@@ -1,7 +1,7 @@
 # Instructions on building libtorrent:
 #   https://github.com/arvidn/libtorrent/blob/RC_1_2/docs/building.rst
 
-FROM alpine:3.12.3@sha256:074d3636ebda6dd446d0d00304c4454f468237fdacf08fb0eeac90bdbfa1bac7
+FROM alpine:3.13.0@sha256:d0710affa17fad5f466a70159cc458227bd25d4afb39514ef662ead3e6c99515
 
 ARG VERSION=1.2.[0-9]\\+
 
@@ -40,7 +40,9 @@ RUN apk --update add --no-cache                              boost-python3 boost
     PREFIX=/usr && \
     BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
+    ln -s /usr/lib/libtorrent-rasterbar.so.* /usr/lib/libtorrent-rasterbar.so && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
+    ln -s /usr/lib/libtorrent.a /usr/lib/libtorrent-rasterbar.a && \
     cd bindings/python && \
     PYTHON_MAJOR_MINOR="$(python3 --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
     echo "using python : ${PYTHON_MAJOR_MINOR} : $(command -v python3) : /usr/include/python${PYTHON_MAJOR_MINOR} : /usr/lib/python${PYTHON_MAJOR_MINOR} ;" > ~/user-config.jam && \
