@@ -1,0 +1,107 @@
+From 1e0070cab1ffa09f8d81e0554cb050e38ee2d89a Mon Sep 17 00:00:00 2001
+From: arvidn <arvid@libtorrent.org>
+Date: Sat, 16 Jan 2021 21:05:37 +0100
+Subject: [PATCH] generate and install pkg-config file when invoking the
+ install rule
+
+---
+ Jamfile              | 62 +++++++++++++++++++++++++++++++++++++++++++-
+ tools/set_version.py |  2 ++
+ 2 files changed, 63 insertions(+), 1 deletion(-)
+
+diff --git a/Jamfile b/Jamfile
+index 44a1199484..f22b6a5700 100644
+--- a/Jamfile
++++ b/Jamfile
+@@ -785,6 +785,57 @@ lib torrent
+ 
+ 	;
+ 
++
++# install rules
++
++rule generate-pkg-config ( properties * )
++{
++	import property-set ;
++	import project ;
++
++	local l = [ project.target [ project.module-name "." ] ] ;
++
++	# this is the libtorrent library target
++	local t = [ $(l).find torrent : . ] ;
++
++	# these are the properties we're using to build it with
++	local props = [ $(t).generate [ property-set.create $(properties) ] ] ;
++	props = $(props[1]) ;
++
++	local FULL_VERSION = 1.2.12 ;
++	local p = [ package.paths libtorrent : $(properties) ] ;
++	local libdir = [ $(p).libdir ] ;
++	local includedir = [ $(p).includedir ] ;
++
++	local libname = [ virtual-target.add-prefix-and-suffix "torrent-rasterbar" : SHARED_LIB : $(props) ] ;
++	libname = "$(libname).$(VERSION)" ;
++
++	local defines ;
++	for d in [ $(props).raw ] {
++		switch $(d)
++		{
++			case \<define\>TORRENT_* : {
++				d = [ SPLIT_BY_CHARACTERS $(d) : ">" ] ;
++				defines += " -D$(d[2])" ;
++			}
++			case \<define\>BOOST_* : {
++				d = [ SPLIT_BY_CHARACTERS $(d) : ">" ] ;
++				defines += " -D$(d[2])" ;
++			}
++		}
++	}
++
++	local config = "Name: libtorrent-rasterbar"
++		"\nDescription: libtorrent is an open source C++ library implementing the BitTorrent protocol"
++		"\nURL: https://libtorrent.org"
++		"\nVersion: $(FULL_VERSION)"
++		"\nLibs: -L$(libdir) -l$(libname) -lboost_system"
++		"\nCflags: -I$(includedir) $(defines:J=)"
++		"\n"
++		;
++
++	local dummy = @("libtorrent-rasterbar.pc":E=$(config)) ;
++}
+ headers = [ path.glob-tree include/libtorrent : *.hpp ] ;
+ 
+ package.install install-torrent-lib
+@@ -799,10 +850,19 @@ package.install-data install-cmake-module
+ 	: examples/cmake/FindLibtorrentRasterbar.cmake
+ 	;
+ 
+-alias install : install-torrent-lib install-cmake-module ;
++package.install-data install-pkg-config
++	: pkgconfig
++	: libtorrent-rasterbar.pc
++	: <conditional>@generate-pkg-config
++	;
++
++alias install : install-torrent-lib install-cmake-module install-pkg-config ;
+ 
+ explicit install ;
+ 
++
++# testing headers targets
++
+ local header_targets ;
+ for local target in $(headers)
+ {
+diff --git a/tools/set_version.py b/tools/set_version.py
+index e60f2e3f30..985624d564 100755
+--- a/tools/set_version.py
++++ b/tools/set_version.py
+@@ -49,6 +49,8 @@ def substitute_file(name):
+             line = '    version="%d.%d.%d",\n' % (version[0], version[1], version[2])
+         elif '"-LT' in line and name.endswith('settings_pack.cpp'):
+             line = re.sub('"-LT[0-9A-Za-z]{4}-"', '"-LT%c%c%c%c-"' % v(version), line)
++        elif 'local FULL_VERSION = ' in line and name == 'Jamfile':
++            line = '\tlocal FULL_VERSION = %d.%d.%d ;\n' % (version[0], version[1], version[2])
+ 
+         subst += line
+ 
