@@ -55,13 +55,18 @@ jobs:
       - run:
           name: Shortcut
           command: |
+            # If tag doesn't exist, don't halt
+            docker manifest inspect "${REPO_NAME}:${VERSION}" > /dev/null || exit 0
+            # If directory has changes, don't halt
             apk add --no-cache curl git jq
+            echo "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${CIRCLE_PR_NUMBER}"
             CIRCLE_BASE_BRANCH=$(curl -s "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${CIRCLE_PR_NUMBER}" | jq -r '.base.ref')
             DIRECTORY_MODIFIED=$(git diff "origin/${CIRCLE_BASE_BRANCH}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY:-${VERSION%.*}}")
-            if [[ "${DIRECTORY_MODIFIED}" == "" ]]; then
-              exit 1
-              circleci-agent step halt
+            if [[ "${DIRECTORY_MODIFIED}" != "" ]]; then
+              exit 0
             fi
+            # Otherwise halt
+            circleci-agent step halt
       - setup_remote_docker
       - restore_cache:
           keys:
