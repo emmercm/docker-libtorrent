@@ -55,21 +55,21 @@ jobs:
       - run:
           name: Shortcut build
           command: |
-            apk add --no-cache curl git jq
-            # If tag doesn't exist, don't halt
+            apk add --no-cache curl git jq > /dev/null
+            # If tag doesn't exist, don't halt job
             curl -f "https://index.docker.io/v1/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null || (
               echo "${REPO_NAME}:${VERSION} doesn't exist, continuing build"
               exit 0
             )
-            # If directory has changes, don't halt
+            # If directory has changes, don't halt job
             CIRCLE_PR_NUMBER=${CIRCLE_PR_NUMBER:-$(echo "${CIRCLE_PULL_REQUEST}" | sed 's/.\+\///')}
             CIRCLE_BASE_BRANCH=$(curl -s "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${CIRCLE_PR_NUMBER}" | jq -r '.base.ref')
             DIRECTORY_MODIFIED=$(git diff "origin/${CIRCLE_BASE_BRANCH}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY:-${VERSION%.*}}" || true)
             if [[ "${DIRECTORY_MODIFIED}" != "" ]]; then
-              echo "${DIRECTORY_MODIFIED} has changes, continuing build"
+              echo "Directory ${DIRECTORY_MODIFIED} has changes, continuing build"
               exit 0
             fi
-            # Otherwise halt
+            # Otherwise halt job
             echo "Shortcutting the build of ${REPO_NAME}:${VERSION}"
             circleci-agent step halt
       - setup_remote_docker
@@ -102,7 +102,7 @@ jobs:
       - run:
           name: Test Docker image
           command: |
-            apk add --no-cache curl
+            apk add --no-cache curl > /dev/null
             curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
             container-structure-test test --config "${DIRECTORY:-${VERSION%.*}}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
       - run:
