@@ -53,9 +53,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: set
-          command: set
-      - run:
           name: Shortcut build
           command: |
             apk add --no-cache curl git jq
@@ -65,7 +62,7 @@ jobs:
               exit 0
             )
             # If directory has changes, don't halt
-            echo "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${CIRCLE_PR_NUMBER}"
+            CIRCLE_PR_NUMBER=${CIRCLE_PR_NUMBER:-$(echo "${CIRCLE_PULL_REQUEST}" | sed 's/.\+\///')}
             CIRCLE_BASE_BRANCH=$(curl -s "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${CIRCLE_PR_NUMBER}" | jq -r '.base.ref')
             DIRECTORY_MODIFIED=$(git diff "origin/${CIRCLE_BASE_BRANCH}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY:-${VERSION%.*}}")
             if [[ "${DIRECTORY_MODIFIED}" != "" ]]; then
