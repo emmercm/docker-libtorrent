@@ -40,6 +40,7 @@ RUN apk --update add --no-cache                              boost-python2 boost
     git apply /5026.patch && rm /5026.patch && \
     git apply /5874.patch && rm /5874.patch && \
     git apply /5894.patch && rm /5894.patch && \
+    cat Jamfile && \
     # Run b2
     PREFIX=/usr && \
     BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
