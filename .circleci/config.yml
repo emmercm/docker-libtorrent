@@ -55,7 +55,6 @@ jobs:
       - run:
           name: Shortcut build
           command: |
-            set -x
             apk add --no-cache curl git jq
             # If tag doesn't exist, don't halt
             curl -f "https://index.docker.io/v1/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null || (
@@ -65,7 +64,7 @@ jobs:
             # If directory has changes, don't halt
             CIRCLE_PR_NUMBER=${CIRCLE_PR_NUMBER:-$(echo "${CIRCLE_PULL_REQUEST}" | sed 's/.\+\///')}
             CIRCLE_BASE_BRANCH=$(curl -s "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${CIRCLE_PR_NUMBER}" | jq -r '.base.ref')
-            DIRECTORY_MODIFIED=$(git diff "origin/${CIRCLE_BASE_BRANCH}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY:-${VERSION%.*}}")
+            DIRECTORY_MODIFIED=$(git diff "origin/${CIRCLE_BASE_BRANCH}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY:-${VERSION%.*}}" || true)
             if [[ "${DIRECTORY_MODIFIED}" != "" ]]; then
               echo "${DIRECTORY_MODIFIED} has changes, continuing build"
               exit 0
