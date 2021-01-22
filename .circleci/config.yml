@@ -55,6 +55,7 @@ jobs:
       - run:
           name: Shortcut build
           command: |
+            set -x
             apk add --no-cache curl git jq
             # If tag doesn't exist, don't halt
             curl -f "https://index.docker.io/v1/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null || (
