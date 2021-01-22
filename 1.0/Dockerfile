@@ -7,7 +7,7 @@ FROM alpine:3.7.3@sha256:92251458088c638061cda8fd8b403b76d661a4dc6b7ee71b6affcf1
 
 ARG VERSION=1.0.[0-9]\\+
 
-SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
+SHELL ["/bin/ash", "-euxo", "pipefail", "-c"]
 
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2169
