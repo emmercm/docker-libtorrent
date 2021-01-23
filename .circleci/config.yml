@@ -81,7 +81,7 @@ jobs:
           paths:
             - /cache
       - run:
-          name: Load Docker image(s) from cache
+          name: Load Docker image from cache
           command: |
             for TAR in $(ls -1 /cache/*.tar); do
               docker load --input "${TAR}"
@@ -106,7 +106,7 @@ jobs:
             curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
             container-structure-test test --config "${DIRECTORY:-${VERSION%.*}}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
       - run:
-          name: Save Docker image(s) to cache
+          name: Save Docker image to cache
           command: |
             if [[ ! -e /cache ]]; then
               mkdir /cache
@@ -130,13 +130,13 @@ jobs:
           at: /cache
       - setup_remote_docker
       - run:
-          name: Load Docker image(s) from cache
+          name: Load Docker image(s) from workspace
           command: |
             for TAR in $(ls -1 /cache/*.tar); do
               docker load --input "${TAR}"
             done
       - run:
-          name: Publish Docker image
+          name: Publish Docker image(s)
           command: |
             echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
             for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" "${REPO_NAME}"); do
