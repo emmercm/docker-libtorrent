@@ -61,10 +61,14 @@ jobs:
               echo "${REPO_NAME}:${VERSION} doesn't exist, continuing build"
               exit 0
             )
-            # If directory has changes, don't halt job
-            CIRCLE_PR_NUMBER=${CIRCLE_PR_NUMBER:-$(echo "${CIRCLE_PULL_REQUEST}" | sed 's/.\+\///')}
-            CIRCLE_BASE_BRANCH=$(curl -s "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${CIRCLE_PR_NUMBER}" | jq -r '.base.ref')
-            DIRECTORY_MODIFIED=$(git diff "origin/${CIRCLE_BASE_BRANCH}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY:-${VERSION%.*}}" || true)
+            # If directory has changes, don't halt job (assumes not fork PR)
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+              GIT_DIFF_BASE="HEAD~"
+            else
+              CIRCLE_PR_NUMBER=${CIRCLE_PR_NUMBER:-$(echo "${CIRCLE_PULL_REQUEST}" | sed 's/.\+\///')}
+              GIT_DIFF_BASE="origin/$(curl -s "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${CIRCLE_PR_NUMBER}" | jq -r '.base.ref')"
+            fi
+            DIRECTORY_MODIFIED=$(git diff "${GIT_DIFF_BASE}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY:-${VERSION%.*}}" || true)
             if [[ "${DIRECTORY_MODIFIED}" != "" ]]; then
               echo "Directory ${DIRECTORY_MODIFIED} has changes, continuing build"
               exit 0
