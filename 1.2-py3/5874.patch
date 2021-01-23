@@ -1,0 +1,200 @@
+From 294674e409b61c818e79234d61284fb727f169af Mon Sep 17 00:00:00 2001
+From: arvidn <arvid@libtorrent.org>
+Date: Sat, 16 Jan 2021 21:05:37 +0100
+Subject: [PATCH 1/3] generate and install pkg-config file when invoking the
+ install rule
+
+---
+ Jamfile              | 89 +++++++++++++++++++++++++++++++++++++++++++-
+ tools/set_version.py |  2 +
+ 2 files changed, 90 insertions(+), 1 deletion(-)
+
+diff --git a/Jamfile b/Jamfile
+index 44a1199484..1735ef2413 100644
+--- a/Jamfile
++++ b/Jamfile
+@@ -785,6 +785,84 @@ lib torrent
+ 
+ 	;
+ 
++
++# install rules
++
++rule generate-pkg-config ( properties * )
++{
++	import property-set ;
++	import project ;
++	import version ;
++
++	local l = [ project.target [ project.module-name "." ] ] ;
++
++	# this is the libtorrent library target
++	local t = [ $(l).find torrent : . ] ;
++
++	# these are the properties we're using to build it with
++	local props = [ $(t).generate [ property-set.create $(properties) ] ] ;
++	props = $(props[1]) ;
++
++	local FULL_VERSION = 1.2.12 ;
++	local libdir ;
++	local includedir ;
++
++	# package.paths was introduced in boost-1.70 (2018.02)
++	# however, boost build's versioning scheme changed in boost-1.71 to version
++	# 4.0
++	local boost-build-version = [ SPLIT_BY_CHARACTERS [ version.boost-build ] : "-" ] ;
++	if [ version.version-less [ SPLIT_BY_CHARACTERS $(boost-build-version[1]) : "." ] : 2018 01 ]
++	{
++		import option ;
++		import property ;
++		local prefix = [ option.get prefix : [ property.select <install-default-prefix> : $(properties) ] ] ;
++		prefix = $(prefix:G=) ;
++		# Or some likely defaults if neither is given.
++		if ! $(prefix)
++		{
++			if [ modules.peek : NT ] { prefix = C:\\$(package-name) ; }
++			else if [ modules.peek : UNIX ] { prefix = /usr/local ; }
++		}
++
++		libdir = $(prefix)/lib ;
++		includedir = $(prefix)/include ;
++	}
++	else
++	{
++		local p = [ package.paths libtorrent : $(properties) ] ;
++		libdir = [ $(p).libdir ] ;
++		includedir = [ $(p).includedir ] ;
++	}
++
++	local libname = [ virtual-target.add-prefix-and-suffix "torrent-rasterbar" : SHARED_LIB : $(props) ] ;
++	libname = "$(libname).$(VERSION)" ;
++
++	local defines ;
++	for d in [ $(props).raw ] {
++		switch $(d)
++		{
++			case \<define\>TORRENT_* : {
++				d = [ SPLIT_BY_CHARACTERS $(d) : ">" ] ;
++				defines += " -D$(d[2])" ;
++			}
++			case \<define\>BOOST_* : {
++				d = [ SPLIT_BY_CHARACTERS $(d) : ">" ] ;
++				defines += " -D$(d[2])" ;
++			}
++		}
++	}
++
++	local config = "Name: libtorrent-rasterbar"
++		"\nDescription: libtorrent is an open source C++ library implementing the BitTorrent protocol"
++		"\nURL: https://libtorrent.org"
++		"\nVersion: $(FULL_VERSION)"
++		"\nLibs: -L$(libdir) -l$(libname) -lboost_system"
++		"\nCflags: -I$(includedir) $(defines:J=)"
++		"\n"
++		;
++
++	local dummy = @("libtorrent-rasterbar.pc":E=$(config)) ;
++}
+ headers = [ path.glob-tree include/libtorrent : *.hpp ] ;
+ 
+ package.install install-torrent-lib
+@@ -799,10 +877,19 @@ package.install-data install-cmake-module
+ 	: examples/cmake/FindLibtorrentRasterbar.cmake
+ 	;
+ 
+-alias install : install-torrent-lib install-cmake-module ;
++package.install-data install-pkg-config
++	: pkgconfig
++	: libtorrent-rasterbar.pc
++	: <conditional>@generate-pkg-config
++	;
++
++alias install : install-torrent-lib install-cmake-module install-pkg-config ;
+ 
+ explicit install ;
+ 
++
++# testing headers targets
++
+ local header_targets ;
+ for local target in $(headers)
+ {
+diff --git a/tools/set_version.py b/tools/set_version.py
+index e60f2e3f30..985624d564 100755
+--- a/tools/set_version.py
++++ b/tools/set_version.py
+@@ -49,6 +49,8 @@ def substitute_file(name):
+             line = '    version="%d.%d.%d",\n' % (version[0], version[1], version[2])
+         elif '"-LT' in line and name.endswith('settings_pack.cpp'):
+             line = re.sub('"-LT[0-9A-Za-z]{4}-"', '"-LT%c%c%c%c-"' % v(version), line)
++        elif 'local FULL_VERSION = ' in line and name == 'Jamfile':
++            line = '\tlocal FULL_VERSION = %d.%d.%d ;\n' % (version[0], version[1], version[2])
+ 
+         subst += line
+ 
+
+From dff4ed6139292f7507e6a3022f3a428a3aa5723f Mon Sep 17 00:00:00 2001
+From: arvidn <arvid@libtorrent.org>
+Date: Mon, 18 Jan 2021 21:45:23 +0100
+Subject: [PATCH 2/3] test install rule on linux
+
+---
+ .github/workflows/linux.yml | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/.github/workflows/linux.yml b/.github/workflows/linux.yml
+index 60e188d244..a6a9ed6b1b 100644
+--- a/.github/workflows/linux.yml
++++ b/.github/workflows/linux.yml
+@@ -234,12 +234,12 @@ jobs:
+           name: tarball
+           path: libtorrent-rasterbar-*.tar.gz
+ 
+-      - name: test-tarball (make)
++      - name: test-tarball (install)
+         run: |
+           tar xvzf libtorrent-rasterbar-*.tar.gz
+           cd libtorrent-rasterbar-*/
+-          ./configure --enable-python-binding --enable-examples=yes --enable-encryption --enable-tests=yes
+-          make -j2
++          b2 install cxxflags=-std=c++11 --prefix=test-install-root
++          cat test-install-root/share/pkgconfig/libtorrent-rasterbar.pc
+ 
+       - name: test-tarball (bjam)
+         uses: nick-invision/retry@v2
+@@ -249,4 +249,10 @@ jobs:
+           max_attempts: 3
+           command: |
+             cd libtorrent-rasterbar-*/test
+-            b2 link=static -j2 cxxflags=-std=c++11
++            b2 link=static cxxflags=-std=c++11
++
++      - name: test-tarball (make)
++        run: |
++          cd libtorrent-rasterbar-*/
++          ./configure --enable-python-binding --enable-examples=yes --enable-encryption --enable-tests=yes
++          make -j2
+
+From 33f38f3061eb40c0892205d4476c01af53db0e6e Mon Sep 17 00:00:00 2001
+From: arvidn <arvid@libtorrent.org>
+Date: Wed, 20 Jan 2021 10:54:06 +0100
+Subject: [PATCH 3/3] don't run all the tests again from the tarball test
+
+---
+ .github/workflows/linux.yml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/.github/workflows/linux.yml b/.github/workflows/linux.yml
+index a6a9ed6b1b..68c1cb0221 100644
+--- a/.github/workflows/linux.yml
++++ b/.github/workflows/linux.yml
+@@ -249,7 +249,8 @@ jobs:
+           max_attempts: 3
+           command: |
+             cd libtorrent-rasterbar-*/test
+-            b2 link=static cxxflags=-std=c++11
++            b2 cxxflags=-std=c++11 testing.execute=off
++            b2 cxxflags=-std=c++11 test_torrent_info
+ 
+       - name: test-tarball (make)
+         run: |
