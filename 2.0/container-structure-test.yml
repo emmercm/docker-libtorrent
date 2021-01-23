@@ -12,6 +12,13 @@ fileExistenceTests:
     permissions: "-rwxr-xr-x"
 
 commandTests:
+  # - name: "pkgconfig"
+  #   setup: [["apk", "add", "pkgconfig"]]
+  #   command: "pkg-config"
+  #   args: ["--list-all"]
+  #   expectedOutput: ["libtorrent-rasterbar"]
+  #   excludedError: [".+"]
+  #   exitCode: 0
   # Python tests (https://dev.deluge-torrent.org/wiki/Building/libtorrent#UbuntuDebian)
   - name: "Python 3"
     command: "python3"

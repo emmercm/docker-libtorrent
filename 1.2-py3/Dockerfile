@@ -5,7 +5,7 @@ FROM alpine:3.13.0@sha256:d0710affa17fad5f466a70159cc458227bd25d4afb39514ef662ea
 
 ARG VERSION=1.2.[0-9]\\+
 
-COPY 5026.patch /
+COPY *.patch /
 
 SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
@@ -36,6 +36,8 @@ RUN apk --update add --no-cache                              boost-python3 boost
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
     git apply /5026.patch && rm /5026.patch && \
+    git apply /5874.patch && rm /5874.patch && \
+    git apply /5894.patch && rm /5894.patch && \
     # Run b2
     PREFIX=/usr && \
     BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
