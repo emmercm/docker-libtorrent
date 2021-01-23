@@ -9,7 +9,7 @@ ARG VERSION=1.2.[0-9]\\+
 
 COPY 5026.patch /
 
-SHELL ["/bin/ash", "-euxo", "pipefail", "-c"]
+SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2086,SC2169
