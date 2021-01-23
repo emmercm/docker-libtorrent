@@ -39,7 +39,9 @@ RUN apk --update add --no-cache                              boost-python3 boost
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
     cd bindings/python && \
-    LIBTORRENT_PYTHON_INTERPRETER="$(command -v python3)" BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
+    PYTHON_MAJOR_MINOR="$(python3 --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
+    echo "using python : ${PYTHON_MAJOR_MINOR} : $(command -v python3) : /usr/include/python${PYTHON_MAJOR_MINOR} : /usr/lib/python${PYTHON_MAJOR_MINOR} ;" > ~/user-config.jam && \
+    BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
