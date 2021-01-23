@@ -140,13 +140,13 @@ jobs:
           command: |
             echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
             for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" "${REPO_NAME}"); do
-              echo "${TAG}"
+              docker push "${TAG}"
             done
-      # - run:
-      #     name: Update MicroBadger
-      #     command: |
-      #       apk add --no-cache curl
-      #       curl --request POST "${MICROBADGER_WEBHOOK}"
+      - run:
+          name: Update MicroBadger
+          command: |
+            apk add --no-cache curl
+            curl --request POST "${MICROBADGER_WEBHOOK}"
 
   update-description:
     executor: docker
@@ -252,9 +252,9 @@ workflows:
       - push:
           requires:
             - test
-          # filters:
-          #   branches:
-          #     only: master
+          filters:
+            branches:
+              only: master
 
       - update-description:
           requires:
