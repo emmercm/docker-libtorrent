@@ -14,7 +14,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
     # Checkout from source
     cd "$(mktemp -d)" && \
     git clone --branch "$( \ 
-        wget -qO - https://api.github.com/repos/arvidn/libtorrent/tags | jq -r '.[].name' | \
+        wget -qO - https://api.github.com/repos/arvidn/libtorrent/tags?per_page=100 | jq -r '.[].name' | \
         awk '{print $1" "$1}' | \
         # Get rid of prefixes
         sed 's/^libtorrent[^0-9]//i' | \
