@@ -10,7 +10,7 @@ SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2086
 RUN apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
-    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git py3-setuptools python3-dev openssl-dev samurai && \
+    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
     # Checkout from source
     cd "$(mktemp -d)" && \
     git clone --branch "$( \ 
