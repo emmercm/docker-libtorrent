@@ -31,4 +31,4 @@ commandTests:
 fileContentTests:
   - name: "pkgconfig"
     path: "/usr/share/pkgconfig/libtorrent-rasterbar.pc"
-    expectedContents: ["^Libs:.*-ltorrent-rasterbar"]
+    expectedContents: ["Libs:.*-ltorrent-rasterbar"]
