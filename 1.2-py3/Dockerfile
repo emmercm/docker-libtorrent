@@ -12,16 +12,15 @@ SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2086
 RUN apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
-    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git py3-setuptools python3-dev openssl-dev samurai && \
+    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
     # Checkout from source
     cd "$(mktemp -d)" && \
-    git clone https://github.com/arvidn/libtorrent.git && \
-    cd libtorrent && \
-    git checkout "$( \ 
-        git tag | \
+    git clone --branch "$( \ 
+        wget -qO - https://api.github.com/repos/arvidn/libtorrent/tags | jq -r '.[].name' | \
         awk '{print $1" "$1}' | \
-        # Get rid of prefix
+        # Get rid of prefixes
         sed 's/^libtorrent[^0-9]//i' | \
+        sed 's/^v//i' | \
         # Use periods for major.minor.patch
         sed 's/[^a-zA-Z0-9.]\([0-9]\+.* .*\)/.\1/g' | \
         sed 's/[^a-zA-Z0-9.]\([0-9]\+.* .*\)/.\1/g' | \
@@ -32,7 +31,8 @@ RUN apk --update add --no-cache                              boost-python3 boost
         grep "${VERSION}" | \
         tail -1 | \
         awk '{print $2}' \
-    )" && \
+    )" --depth 1 https://github.com/arvidn/libtorrent.git && \
+    cd libtorrent && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
     git apply /5026.patch && rm /5026.patch && \

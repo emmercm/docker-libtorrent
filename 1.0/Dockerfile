@@ -15,13 +15,12 @@ RUN apk --update add --no-cache                              boost-system libgcc
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git libtool make openssl-dev && \
     # Checkout from source
     cd "$(mktemp -d)" && \
-    git clone https://github.com/arvidn/libtorrent.git && \
-    cd libtorrent && \
-    git checkout "$( \ 
-        git tag | \
+    git clone --branch "$( \ 
+        wget -qO - https://api.github.com/repos/arvidn/libtorrent/tags | jq -r '.[].name' | \
         awk '{print $1" "$1}' | \
-        # Get rid of prefix
+        # Get rid of prefixes
         sed 's/^libtorrent[^0-9]//i' | \
+        sed 's/^v//i' | \
         # Use periods for major.minor.patch
         sed 's/[^a-zA-Z0-9.]\([0-9]\+.* .*\)/.\1/g' | \
         sed 's/[^a-zA-Z0-9.]\([0-9]\+.* .*\)/.\1/g' | \
@@ -32,7 +31,8 @@ RUN apk --update add --no-cache                              boost-system libgcc
         grep "${VERSION}" | \
         tail -1 | \
         awk '{print $2}' \
-    )" && \
+    )" --depth 1 https://github.com/arvidn/libtorrent.git && \
+    cd libtorrent && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
     # Run autoconf/automake, configure, and make
