@@ -36,5 +36,5 @@ commandTests:
 # https://github.com/arvidn/libtorrent/issues/5865
 fileContentTests:
   - name: "pkgconfig"
-    path: "/usr/share/pkgconfig/libtorrent-rasterbar.pc"
+    path: "/usr/lib/pkgconfig/libtorrent-rasterbar.pc"
     expectedContents: ["Libs:.*-ltorrent-rasterbar"]
