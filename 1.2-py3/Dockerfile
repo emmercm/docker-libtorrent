@@ -35,16 +35,11 @@ RUN apk --update add --no-cache                              boost-python3 boost
     cd libtorrent && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
-    git apply /5026.patch && rm /5026.patch && \
-    git apply /5874.patch && rm /5874.patch && \
-    git apply /5894.patch && rm /5894.patch && \
     # Run b2
     PREFIX=/usr && \
     BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
-    ln -s /usr/lib/libtorrent-rasterbar.so.* /usr/lib/libtorrent-rasterbar.so && \
     BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
-    ln -s /usr/lib/libtorrent.a /usr/lib/libtorrent-rasterbar.a && \
     cd bindings/python && \
     PYTHON_MAJOR_MINOR="$(python3 --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
     echo "using python : ${PYTHON_MAJOR_MINOR} : $(command -v python3) : /usr/include/python${PYTHON_MAJOR_MINOR} : /usr/lib/python${PYTHON_MAJOR_MINOR} ;" > ~/user-config.jam && \
