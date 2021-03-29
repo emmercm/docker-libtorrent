@@ -5,7 +5,7 @@ fileExistenceTests:
   - name: "libtorrent-rasterbar.a"
     path: "/usr/lib/libtorrent-rasterbar.a"
     shouldExist: true
-    permissions: "Lrwxrwxrwx"
+    permissions: "-rw-r--r--"
   - name: "libtorrent-rasterbar.so"
     path: "/usr/lib/libtorrent-rasterbar.so"
     shouldExist: true
