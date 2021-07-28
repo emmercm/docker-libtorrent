@@ -57,10 +57,9 @@ jobs:
           command: |
             apk add --no-cache curl git jq > /dev/null
             # If tag doesn't exist, don't halt job
-            curl -f "https://index.docker.io/v1/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null || (
-              echo "${REPO_NAME}:${VERSION} doesn't exist, continuing build"
+            curl -f "https://index.docker.io/v1/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null ||
+              echo "${REPO_NAME}:${VERSION} doesn't exist, continuing build" &&
               exit 0
-            )
             # If directory has changes, don't halt job (assumes not fork PR)
             if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               GIT_DIFF_BASE="HEAD~"
