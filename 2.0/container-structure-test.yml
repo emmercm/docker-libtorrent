@@ -7,9 +7,9 @@ fileExistenceTests:
     shouldExist: true
     permissions: "-rw-r--r--"
   - name: "libtorrent-rasterbar.so"
-    path: "/usr/lib/libtorrent-rasterbar.so.2.0"
+    path: "/usr/lib/libtorrent-rasterbar.so"
     shouldExist: true
-    permissions: "-rwxr-xr-x"
+    permissions: "Lrwxrwxrwx"
 
 commandTests:
   - name: "pkgconfig"
