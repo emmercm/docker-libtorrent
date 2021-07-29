@@ -7,9 +7,9 @@ fileExistenceTests:
     shouldExist: true
     permissions: "-rw-r--r--"
   - name: "libtorrent-rasterbar.so"
-    path: "/usr/lib/libtorrent-rasterbar.so.2.0"
+    path: "/usr/lib/libtorrent-rasterbar.so"
     shouldExist: true
-    permissions: "-rwxr-xr-x"
+    permissions: "Lrwxrwxrwx"
 
 commandTests:
   - name: "pkgconfig"
@@ -30,5 +30,5 @@ commandTests:
 # https://github.com/arvidn/libtorrent/issues/5865
 fileContentTests:
   - name: "pkgconfig"
-    path: "/usr/share/pkgconfig/libtorrent-rasterbar.pc"
+    path: "/usr/lib/pkgconfig/libtorrent-rasterbar.pc"
     expectedContents: ["Libs:.*-ltorrent-rasterbar"]
