@@ -203,7 +203,7 @@ workflows:
       # https://github.com/arvidn/libtorrent/releases
       - build:
           name: "2.0-build-test"
-          version: "2.0.4"
+          version: "2.0.5"
           tags: 2.0 2.0-alpine 2 2-alpine latest
           requires:
             - "lint"
