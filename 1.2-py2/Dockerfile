@@ -12,7 +12,7 @@ COPY 5026.patch /
 SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
 # Build libtorrent-rasterbar-dev
-# hadolint ignore=DL3003,DL3018,SC2169
+# hadolint ignore=DL3003,DL3018,SC2169,SC3060
 RUN apk --update add --no-cache                              boost-system libgcc libstdc++ openssl && \
     apk --update add --no-cache --virtual build-dependencies autoconf automake boost-dev coreutils file g++ gcc git jq libtool make openssl-dev && \
     # Checkout from source
