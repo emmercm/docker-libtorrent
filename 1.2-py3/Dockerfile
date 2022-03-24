@@ -1,7 +1,7 @@
 # Instructions on building libtorrent:
 #   https://github.com/arvidn/libtorrent/blob/RC_1_2/docs/building.rst
 
-FROM alpine:3.15.2@sha256:66b861b1099af1551a0eee163c175fd008744192c3fbb7f22e998db0ce09e8ea
+FROM alpine:3.15.2@sha256:ceeae2849a425ef1a7e591d8288f1a58cdf1f4e8d9da7510e29ea829e61cf512
 
 ARG VERSION=1.2.[0-9]\\+
 
