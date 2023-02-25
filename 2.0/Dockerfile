@@ -35,13 +35,15 @@ RUN apk --update add --no-cache                              boost-python3 boost
     git submodule update --depth=1 --init --recursive && \
     # Run b2
     PREFIX=/usr && \
+    export BOOST_BUILD_PATH=$(dirname $(find ${PREFIX} -type f -name bootstrap.jam | head -1)) && \
+    export BOOST_ROOT="" && \
     BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
-    BOOST_ROOT="" b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
-    BOOST_ROOT="" b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
+    b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
+    b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
     cd bindings/python && \
     PYTHON_MAJOR_MINOR="$(python3 --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
     echo "using python : ${PYTHON_MAJOR_MINOR} : $(command -v python3) : /usr/include/python${PYTHON_MAJOR_MINOR} : /usr/lib/python${PYTHON_MAJOR_MINOR} ;" > ~/user-config.jam && \
-    BOOST_ROOT="" b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
+    b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
