@@ -12,7 +12,7 @@ Base images with libtorrent compiled.
 | Tags | Python Bindings | Layers | Size |
 |-|-|-|-|
 | `2.0.8`, `2.0.8-alpine`, `2.0`, `2.0-alpine`, `2`, `2-alpine`, `latest` | v3 | ![](https://badgen.net/docker/layers/emmercm/libtorrent/2.0.8?icon=docker&label=layers) | ![](https://badgen.net/docker/size/emmercm/libtorrent/2.0.8?icon=docker&label=size) |
-| `1.2.18`, `1.2.18-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine` | v3 | ![](https://badgen.net/docker/layers/emmercm/libtorrent/1.2.18?icon=docker&label=layers) | ![](https://badgen.net/docker/size/emmercm/libtorrent/1.2.18?icon=docker&label=size) |
+| `1.2.19`, `1.2.19-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine` | v3 | ![](https://badgen.net/docker/layers/emmercm/libtorrent/1.2.19?icon=docker&label=layers) | ![](https://badgen.net/docker/size/emmercm/libtorrent/1.2.19?icon=docker&label=size) |
 | `1.2.11`, `1.2.11-alpine` | v2, v3 | ![](https://badgen.net/docker/layers/emmercm/libtorrent/1.2.11?icon=docker&label=layers) | ![](https://badgen.net/docker/size/emmercm/libtorrent/1.2.11?icon=docker&label=size) |
 | `1.1.14`, `1.1.14-alpine`, `1.1`, `1.1-alpine` | v2, v3 | ![](https://badgen.net/docker/layers/emmercm/libtorrent/1.1.14?icon=docker&label=layers) | ![](https://badgen.net/docker/size/emmercm/libtorrent/1.1.14?icon=docker&label=size) |
 | `1.0.11`, `1.0.11-alpine`, `1.0`, `1.0-alpine` | v2, v3 | ![](https://badgen.net/docker/layers/emmercm/libtorrent/1.0.11?icon=docker&label=layers) | ![](https://badgen.net/docker/size/emmercm/libtorrent/1.0.11?icon=docker&label=size) |
