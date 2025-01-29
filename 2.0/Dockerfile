@@ -33,17 +33,22 @@ RUN apk --update add --no-cache                              boost-python3 boost
     cd libtorrent && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
-    # Run b2
-    PREFIX=/usr && \
-    export BOOST_BUILD_PATH=$(dirname $(find ${PREFIX} -type f -name bootstrap.jam | head -1)) && \
-    export BOOST_ROOT="" && \
-    BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
-    b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
-    b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
-    cd bindings/python && \
-    PYTHON_MAJOR_MINOR="$(python3 --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
-    echo "using python : ${PYTHON_MAJOR_MINOR} : $(command -v python3) : /usr/include/python${PYTHON_MAJOR_MINOR} : /usr/lib/python${PYTHON_MAJOR_MINOR} ;" > ~/user-config.jam && \
-    b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
+    # https://gitlab.alpinelinux.org/alpine/aports/-/blob/2ebb251a70596aab567e67210bd2070e57d997cf/community/libtorrent-rasterbar/APKBUILD
+    cmake -B build-shared -G Ninja \
+		-DCMAKE_BUILD_TYPE=None \
+		-DCMAKE_CXX_STANDARD=17 \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-Dbuild_tests=OFF \
+		-Dpython-bindings=ON \
+		-Dpython-egg-info=ON && \
+    cmake --build build-shared --parallel "$(nproc)" && \
+    cmake -B build-static -G Ninja \
+		-DCMAKE_BUILD_TYPE=None \
+		-DCMAKE_CXX_STANDARD=17 \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_SHARED_LIBS=OFF \
+		-Dbuild_tests=OFF && \
+        cmake --build build-static --parallel "$(nproc)" && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
