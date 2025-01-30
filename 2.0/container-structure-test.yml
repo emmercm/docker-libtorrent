@@ -10,6 +10,15 @@ fileExistenceTests:
     path: "/usr/lib/libtorrent-rasterbar.so"
     shouldExist: true
     permissions: "Lrwxrwxrwx"
+  - name: "libtorrent-rasterbar.so.2.0"
+    path: "/usr/lib/libtorrent-rasterbar.so.2.0"
+    shouldExist: true
+    permissions: "Lrwxrwxrwx"
+  # CMake files (required for qBittorrent v5.0)
+  - name: "LibtorrentRasterbarConfig.cmake"
+    path: "/usr/lib/cmake/LibtorrentRasterbar/LibtorrentRasterbarConfig.cmake"
+    shouldExist: true
+    permissions: "-rw-r--r--"
 
 commandTests:
   - name: "pkgconfig"
