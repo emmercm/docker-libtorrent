@@ -33,22 +33,35 @@ RUN apk --update add --no-cache                              boost-python3 boost
     cd libtorrent && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
-    # https://gitlab.alpinelinux.org/alpine/aports/-/blob/2ebb251a70596aab567e67210bd2070e57d997cf/community/libtorrent-rasterbar/APKBUILD
-    cmake -B build-shared -G Ninja \
-		-DCMAKE_BUILD_TYPE=None \
+    # Build shared libraries
+    mkdir build-shared && \
+    cd build-shared && \
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        # https://github.com/arvidn/libtorrent/blob/RC_2_0/docs/building.rst#building-with-cmake
+        -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_CXX_STANDARD=17 \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-Dbuild_tests=OFF \
 		-Dpython-bindings=ON \
-		-Dpython-egg-info=ON && \
-    cmake --build build-shared --parallel "$(nproc)" && \
-    cmake -B build-static -G Ninja \
-		-DCMAKE_BUILD_TYPE=None \
+		-Dpython-egg-info=ON \
+        .. && \
+    ninja "-j$(nproc)" && \
+    ninja install && \
+    cd .. && \
+    # Build static libraries
+    mkdir build-static && \
+    cd build-static && \
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        # https://github.com/arvidn/libtorrent/blob/RC_2_0/docs/building.rst#building-with-cmake
+        -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_CXX_STANDARD=17 \
-		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DBUILD_SHARED_LIBS=OFF \
-		-Dbuild_tests=OFF && \
-        cmake --build build-static --parallel "$(nproc)" && \
+        .. && \
+    ninja "-j$(nproc)" && \
+    ninja install && \
+    cd .. && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
