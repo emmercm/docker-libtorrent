@@ -15,7 +15,7 @@ fileExistenceTests:
     shouldExist: true
     permissions: "Lrwxrwxrwx"
   # CMake files (required for qBittorrent v5.0)
-  - name: ""
+  - name: "LibtorrentRasterbarConfig.cmake"
     path: "/usr/lib/cmake/LibtorrentRasterbar/LibtorrentRasterbarConfig.cmake"
     shouldExist: true
     permissions: "-rw-r--r--"
