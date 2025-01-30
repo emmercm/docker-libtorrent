@@ -194,8 +194,8 @@ workflows:
           name: "lint"
           requires:
             - "2.0-lint"
-            - "1.2-py2-lint"
             - "1.2-py3-lint"
+            - "1.2-py2-lint"
             - "1.1-lint"
             - "1.0-lint"
             - "0.16-lint"
@@ -214,39 +214,11 @@ workflows:
           tags: 1.2 1.2-alpine 1 1-alpine
           requires:
             - "lint"
-      - build:
-          name: "1.2-py2-build-test"
-          directory: "1.2-py2"
-          version: "1.2.11"
-          requires:
-            - "lint"
-      - build:
-          name: "1.1-build-test"
-          version: "1.1.14"
-          tags: 1.1 1.1-alpine
-          requires:
-            - "lint"
-      - build:
-          name: "1.0-build-test"
-          version: "1.0.11"
-          tags: 1.0 1.0-alpine
-          requires:
-            - "lint"
-      - build:
-          name: "0.16-build-test"
-          version: "0.16.17"
-          tags: 0.16 0.16-alpine 0 0-alpine
-          requires:
-            - "lint"
       - dummy:
           name: "test"
           requires:
             - "2.0-build-test"
             - "1.2-py3-build-test"
-            - "1.2-py2-build-test"
-            - "1.1-build-test"
-            - "1.0-build-test"
-            - "0.16-build-test"
       
       - push:
           requires:
