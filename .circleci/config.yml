@@ -95,7 +95,7 @@ jobs:
           name: Build Docker image
           command: |
             cd "${DIRECTORY:-${VERSION%.*}}"
-            docker build \
+            docker build --progress=plain \
               --cache-from="${REPO_NAME}:${VERSION}" \
               --build-arg VERSION="${VERSION}" \
               --tag "${REPO_NAME}:${VERSION}" \
@@ -203,7 +203,7 @@ workflows:
       # https://github.com/arvidn/libtorrent/releases
       - build:
           name: "2.0-build-test"
-          version: "2.0.11"
+          version: "2.0.12"
           tags: 2.0 2.0-alpine 2 2-alpine latest
           requires:
             - "lint"

@@ -44,6 +44,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
 		-DCMAKE_CXX_STANDARD=17 \
 		-Dpython-bindings=ON \
 		-Dpython-egg-info=ON \
+		-Dpython-install-system-dir=ON \
         .. && \
     ninja "-j$(nproc)" && \
     ninja install && \
