@@ -38,7 +38,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
     cd build-shared && \
     cmake \
         -DCMAKE_INSTALL_PREFIX=/usr \
-        "-DPYTHON_INSTALL_SITEPACKAGES=$(python3 -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'base': '/usr'}))")" \
+        "-Dpython-install-dir=$(python3 -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'base': '/usr'}))")" \
         # https://github.com/arvidn/libtorrent/blob/RC_2_0/docs/building.rst#building-with-cmake
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
