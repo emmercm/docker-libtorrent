@@ -11,7 +11,7 @@ Base images with libtorrent compiled.
 
 | Tags | Python Bindings | Size |
 |-|-|-|
-| `2.0.11`, `2.0.11-alpine`, `2.0`, `2.0-alpine`, `2`, `2-alpine`, `latest` | v3 | [![](https://img.shields.io/docker/image-size/emmercm/libtorrent/2.0.11?logo=docker&logoColor=white&label=size)](https://hub.docker.com/r/emmercm/libtorrent/tags?name=2.0.11) |
+| `2.0.12`, `2.0.12-alpine`, `2.0`, `2.0-alpine`, `2`, `2-alpine`, `latest` | v3 | [![](https://img.shields.io/docker/image-size/emmercm/libtorrent/2.0.12?logo=docker&logoColor=white&label=size)](https://hub.docker.com/r/emmercm/libtorrent/tags?name=2.0.12) |
 | `1.2.20`, `1.2.20-alpine`, `1.2`, `1.2-alpine`, `1`, `1-alpine` | v3 | [![](https://img.shields.io/docker/image-size/emmercm/libtorrent/1.2.20?logo=docker&logoColor=white&label=size)](https://hub.docker.com/r/emmercm/libtorrent/tags?name=1.2.20) |
 | <span title="Unmaintained">⚠️</span> `1.2.11`, `1.2.11-alpine` | v2, v3 | [![](https://img.shields.io/docker/image-size/emmercm/libtorrent/1.2.11?logo=docker&logoColor=white&label=size)](https://hub.docker.com/r/emmercm/libtorrent/tags?name=1.2.11) |
 | <span title="Unmaintained">⚠️</span> `1.1.14`, `1.1.14-alpine`, `1.1`, `1.1-alpine` | v2, v3 | [![](https://img.shields.io/docker/image-size/emmercm/libtorrent/1.1.14?logo=docker&logoColor=white&label=size)](https://hub.docker.com/r/emmercm/libtorrent/tags?name=1.1.14) |
