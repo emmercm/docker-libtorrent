@@ -3,11 +3,33 @@ version: 2.1
 references:
   environment: &environment
     REPO_NAME: emmercm/libtorrent
+  # https://github.com/arvidn/libtorrent/releases
+  version-2-0: &version-2-0
+    version: "2.0.13"
+    tags: 2.0 2.0-alpine 2 2-alpine latest
+  version-1-2-py3: &version-1-2-py3
+    directory: "1.2-py3"
+    version: "1.2.20"
+    tags: 1.2 1.2-alpine 1 1-alpine
 
 executors:
   docker:
     docker:
       - image: docker:stable
+
+commands:
+  buildx-setup:
+    description: "Register QEMU emulators (arm64, arm/v7) and create a docker-container buildx builder"
+    steps:
+      - run:
+          name: Register QEMU emulators
+          # amd64 is native and is not registered
+          command: docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
+      - run:
+          name: Create buildx builder
+          command: |
+            docker buildx create --name multiarch --use --driver docker-container
+            docker buildx inspect --bootstrap
 
 jobs:
   dummy:
@@ -79,73 +101,91 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - v4-{{ .Environment.VERSION }}-{{ .Branch }}-{{ .Revision }}
-            - v4-{{ .Environment.VERSION }}-{{ .Branch }}-
-            - v4-{{ .Environment.VERSION }}-
+            - v5-{{ .Environment.VERSION }}-{{ .Branch }}-{{ .Revision }}
+            - v5-{{ .Environment.VERSION }}-{{ .Branch }}-
+            - v5-{{ .Environment.VERSION }}-
           paths:
-            - /cache
+            - /cache/buildx
+      - buildx-setup
       - run:
-          name: Load Docker image from cache
-          command: |
-            for TAR in $(ls -1 /cache/*.tar); do
-              docker load --input "${TAR}"
-              rm "${TAR}"
-            done
-      - run:
-          name: Build Docker image
+          name: Build Docker image (all platforms)
           command: |
             cd "${DIRECTORY:-${VERSION%.*}}"
-            docker build --progress=plain \
-              --cache-from="${REPO_NAME}:${VERSION}" \
-              --build-arg VERSION="${VERSION}" \
-              --tag "${REPO_NAME}:${VERSION}" \
-              --tag "${REPO_NAME}:${VERSION}-alpine" .
+            TAG_ARGS="--tag ${REPO_NAME}:${VERSION} --tag ${REPO_NAME}:${VERSION}-alpine"
             for TAG in ${TAGS}; do
-              docker tag "${REPO_NAME}:${VERSION}" "${REPO_NAME}:${TAG}"
+              TAG_ARGS="${TAG_ARGS} --tag ${REPO_NAME}:${TAG}"
             done
+            docker buildx build --progress=plain \
+              --platform linux/amd64,linux/arm64,linux/arm/v7 \
+              --build-arg VERSION="${VERSION}" \
+              --cache-from type=local,src=/cache/buildx \
+              --cache-to type=local,dest=/cache/buildx,mode=max \
+              ${TAG_ARGS} \
+              .
+      - run:
+          name: Load amd64 image for testing
+          command: |
+            cd "${DIRECTORY:-${VERSION%.*}}"
+            docker buildx build --progress=plain \
+              --platform linux/amd64 \
+              --build-arg VERSION="${VERSION}" \
+              --cache-from type=local,src=/cache/buildx \
+              --load \
+              --tag "${REPO_NAME}:${VERSION}" \
+              .
       - run:
           name: Test Docker image
           command: |
             apk add --no-cache curl > /dev/null
             curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
             container-structure-test test --config "${DIRECTORY:-${VERSION%.*}}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
-      - run:
-          name: Save Docker image to cache
-          command: |
-            if [[ ! -e /cache ]]; then
-              mkdir /cache
-            fi
-            docker save --output "/cache/${VERSION}.tar" "${REPO_NAME}"
       - save_cache:
-          key: v4-{{ .Environment.VERSION }}-{{ .Branch }}-{{ .Revision }}
+          key: v5-{{ .Environment.VERSION }}-{{ .Branch }}-{{ .Revision }}
           paths:
-            - /cache
+            - /cache/buildx
       - persist_to_workspace:
           root: /cache
           paths:
-            - "*"
+            - buildx
 
   push:
+    parameters:
+      directory:
+        type: string
+        default: ""
+      version:
+        type: string
+      tags:
+        type: string
+        default: ""
     executor: docker
     environment:
+      DIRECTORY: << parameters.directory >>
+      VERSION: << parameters.version >>
+      TAGS: << parameters.tags >>
       <<: *environment
     steps:
+      - checkout
       - attach_workspace:
           at: /cache
       - setup_remote_docker
+      - buildx-setup
       - run:
-          name: Load Docker image(s) from workspace
-          command: |
-            for TAR in $(ls -1 /cache/*.tar); do
-              docker load --input "${TAR}"
-            done
-      - run:
-          name: Publish Docker image(s)
+          name: Publish multi-arch Docker image(s)
           command: |
             echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-            for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" "${REPO_NAME}"); do
-              docker push "${TAG}"
+            cd "${DIRECTORY:-${VERSION%.*}}"
+            TAG_ARGS="--tag ${REPO_NAME}:${VERSION} --tag ${REPO_NAME}:${VERSION}-alpine"
+            for TAG in ${TAGS}; do
+              TAG_ARGS="${TAG_ARGS} --tag ${REPO_NAME}:${TAG}"
             done
+            docker buildx build --progress=plain \
+              --platform linux/amd64,linux/arm64,linux/arm/v7 \
+              --build-arg VERSION="${VERSION}" \
+              --cache-from type=local,src=/cache/buildx \
+              ${TAG_ARGS} \
+              --push \
+              .
 
   update-description:
     executor: docker
@@ -200,18 +240,14 @@ workflows:
             - "1.0-lint"
             - "0.16-lint"
 
-      # https://github.com/arvidn/libtorrent/releases
       - build:
           name: "2.0-build-test"
-          version: "2.0.13"
-          tags: 2.0 2.0-alpine 2 2-alpine latest
+          <<: *version-2-0
           requires:
             - "lint"
       - build:
           name: "1.2-py3-build-test"
-          directory: "1.2-py3"
-          version: "1.2.20"
-          tags: 1.2 1.2-alpine 1 1-alpine
+          <<: *version-1-2-py3
           requires:
             - "lint"
       - dummy:
@@ -221,6 +257,16 @@ workflows:
             - "1.2-py3-build-test"
       
       - push:
+          name: "2.0-push"
+          <<: *version-2-0
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - push:
+          name: "1.2-py3-push"
+          <<: *version-1-2-py3
           requires:
             - test
           filters:
@@ -229,7 +275,8 @@ workflows:
 
       - update-description:
           requires:
-            - push
+            - "2.0-push"
+            - "1.2-py3-push"
           filters:
             branches:
               only: master
