@@ -15,7 +15,7 @@ references:
 executors:
   docker:
     docker:
-      - image: docker:stable
+      - image: docker:cli
 
 commands:
   buildx-setup:
