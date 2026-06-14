@@ -33,7 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Run hadolint
-        uses: hadolint/hadolint-action@v3
+        # Pinned to a full version: hadolint-action does not publish a moving major tag
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: ${{ matrix.directory }}/Dockerfile
 
