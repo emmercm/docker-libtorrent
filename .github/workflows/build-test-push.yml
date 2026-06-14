@@ -1,0 +1,169 @@
+# Required repository secrets:
+#   DOCKERHUB_USERNAME - Docker Hub account username, used for `docker login` and pushes.
+#   DOCKERHUB_PASS     - Docker Hub password or access token for that account.
+#                        Note: docker-pushrm cannot use a 2FA-protected login, so this
+#                        must be a non-2FA account password or a Docker Hub access token.
+
+name: build-test-push
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  REPO_NAME: emmercm/libtorrent
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        directory:
+          - "2.0"
+          - "1.2-py3"
+          - "1.2-py2"
+          - "1.1"
+          - "1.0"
+          - "0.16"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ matrix.directory }}/Dockerfile
+
+  # https://github.com/arvidn/libtorrent/releases
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - directory: "2.0"
+            version: "2.0.13"
+            tags: "2.0 2.0-alpine 2 2-alpine latest"
+          - directory: "1.2-py3"
+            version: "1.2.20"
+            tags: "1.2 1.2-alpine 1 1-alpine"
+    env:
+      DIRECTORY: ${{ matrix.directory }}
+      VERSION: ${{ matrix.version }}
+      TAGS: ${{ matrix.tags }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Needed so the shortcut step can diff against the base ref / previous commit
+          fetch-depth: 0
+
+      - name: Shortcut build
+        id: shortcut
+        run: |
+          # If tag doesn't exist on Docker Hub, don't skip the build
+          curl -f "https://index.docker.io/v1/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null || {
+            echo "${REPO_NAME}:${VERSION} doesn't exist, continuing build"
+            exit 0
+          }
+          # If the directory has changes, don't skip the build
+          if [[ "${GITHUB_EVENT_NAME}" != "pull_request" ]]; then
+            GIT_DIFF_BASE="HEAD~"
+          else
+            GIT_DIFF_BASE="origin/${GITHUB_BASE_REF}"
+          fi
+          DIRECTORY_MODIFIED=$(git diff "${GIT_DIFF_BASE}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY}" || true)
+          if [[ "${DIRECTORY_MODIFIED}" != "" ]]; then
+            echo "Directory ${DIRECTORY_MODIFIED} has changes, continuing build"
+            exit 0
+          fi
+          # Otherwise skip the rest of this build
+          echo "Shortcutting the build of ${REPO_NAME}:${VERSION}"
+          echo "skip=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Set up Docker Buildx
+        if: steps.shortcut.outputs.skip != 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        if: steps.shortcut.outputs.skip != 'true'
+        run: |
+          TAG_ARGS="--tag ${REPO_NAME}:${VERSION} --tag ${REPO_NAME}:${VERSION}-alpine"
+          for TAG in ${TAGS}; do
+            TAG_ARGS="${TAG_ARGS} --tag ${REPO_NAME}:${TAG}"
+          done
+          cd "${DIRECTORY}"
+          docker buildx build --progress=plain \
+            --build-arg VERSION="${VERSION}" \
+            --cache-from=type=gha \
+            --cache-to=type=gha,mode=max \
+            ${TAG_ARGS} \
+            --load .
+
+      - name: Test Docker image
+        if: steps.shortcut.outputs.skip != 'true'
+        run: |
+          curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
+          chmod +x container-structure-test-linux-amd64
+          sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+          container-structure-test test --config "${DIRECTORY}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
+
+      - name: Save Docker image
+        if: steps.shortcut.outputs.skip != 'true'
+        run: |
+          mkdir -p cache
+          docker save --output "cache/${VERSION}.tar" "${REPO_NAME}"
+
+      - name: Upload Docker image
+        if: steps.shortcut.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.version }}
+          path: cache/${{ matrix.version }}.tar
+          if-no-files-found: error
+
+  push:
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Docker image(s)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: image-*
+          path: cache
+          merge-multiple: true
+
+      - name: Load Docker image(s) from artifacts
+        run: |
+          shopt -s nullglob
+          for TAR in cache/*.tar; do
+            docker load --input "${TAR}"
+          done
+
+      - name: Publish Docker image(s)
+        run: |
+          echo "${{ secrets.DOCKERHUB_PASS }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" "${REPO_NAME}"); do
+            docker push "${TAG}"
+          done
+
+  update-description:
+    needs: push
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install docker-pushrm
+        run: |
+          mkdir -p "$HOME/.docker/cli-plugins"
+          wget https://github.com/christian-korneck/docker-pushrm/releases/download/v1.5.0/docker-pushrm_linux_amd64 -O "$HOME/.docker/cli-plugins/docker-pushrm"
+          chmod +x "$HOME/.docker/cli-plugins/docker-pushrm"
+
+      - name: Update Docker Hub description
+        # Can't use 2FA: https://github.com/docker/roadmap/issues/115
+        run: |
+          echo "${{ secrets.DOCKERHUB_PASS }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          docker pushrm "${REPO_NAME}" --short "$(grep '^\w' README.md | head -1)"
