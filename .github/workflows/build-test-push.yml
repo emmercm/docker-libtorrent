@@ -24,12 +24,12 @@ jobs:
       fail-fast: false
       matrix:
         directory:
-          - "2.0"
-          - "1.2-py3"
-          - "1.2-py2"
-          - "1.1"
-          - "1.0"
           - "0.16"
+          - "1.0"
+          - "1.1"
+          - "1.2-py2"
+          - "1.2-py3"
+          - "2.0"
     steps:
       - uses: actions/checkout@v6
       - name: Run hadolint
@@ -37,60 +37,88 @@ jobs:
         with:
           dockerfile: ${{ matrix.directory }}/Dockerfile
 
-  # https://github.com/arvidn/libtorrent/releases
+  # Decide which directories to build: those whose files changed, plus any whose
+  # image tag is not yet published (e.g. a version bump, which changes this file
+  # rather than the directory). Unchanged, already-published directories are skipped.
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+      any: ${{ steps.select.outputs.any }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Detect changed directories
+        uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            "0.16": "0.16/**"
+            "1.0": "1.0/**"
+            "1.1": "1.1/**"
+            "1.2-py2": "1.2-py2/**"
+            "1.2-py3": "1.2-py3/**"
+            "2.0": "2.0/**"
+
+      - name: Select directories to build
+        id: select
+        env:
+          CHANGED: ${{ steps.filter.outputs.changes }}
+          # Buildable directories with their libtorrent version and extra tags.
+          # The implicit ${VERSION} and ${VERSION}-alpine tags are always added too.
+          # https://github.com/arvidn/libtorrent/releases
+          CANDIDATES: |
+            [
+              {"directory": "0.16",    "version": "0.16.17", "tags": "0.16 0.16-alpine 0 0-alpine"},
+              {"directory": "1.0",     "version": "1.0.11",  "tags": "1.0 1.0-alpine"},
+              {"directory": "1.1",     "version": "1.1.14",  "tags": "1.1 1.1-alpine"},
+              {"directory": "1.2-py2", "version": "1.2.11",  "tags": ""},
+              {"directory": "1.2-py3", "version": "1.2.20",  "tags": "1.2 1.2-alpine 1 1-alpine"},
+              {"directory": "2.0",     "version": "2.0.13",  "tags": "2.0 2.0-alpine 2 2-alpine latest"}
+            ]
+        run: |
+          SELECTED='[]'
+          while read -r ENTRY; do
+            DIRECTORY=$(jq -r '.directory' <<< "${ENTRY}")
+            VERSION=$(jq -r '.version' <<< "${ENTRY}")
+            if jq -e --arg d "${DIRECTORY}" 'index($d) != null' <<< "${CHANGED}" > /dev/null; then
+              echo "${DIRECTORY}: files changed, building"
+            elif ! curl -fsS "https://hub.docker.com/v2/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null; then
+              echo "${DIRECTORY}: ${REPO_NAME}:${VERSION} not yet published, building"
+            else
+              echo "${DIRECTORY}: unchanged and already published, skipping"
+              continue
+            fi
+            SELECTED=$(jq -c ". + [${ENTRY}]" <<< "${SELECTED}")
+          done < <(jq -c '.[]' <<< "${CANDIDATES}")
+
+          echo "Selected build matrix: ${SELECTED}"
+          echo "matrix={\"include\":${SELECTED}}" >> "${GITHUB_OUTPUT}"
+          if [[ "${SELECTED}" == "[]" ]]; then
+            echo "any=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "any=true" >> "${GITHUB_OUTPUT}"
+          fi
+
   build:
-    needs: lint
+    needs: [lint, setup]
+    if: needs.setup.outputs.any == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - directory: "2.0"
-            version: "2.0.13"
-            tags: "2.0 2.0-alpine 2 2-alpine latest"
-          - directory: "1.2-py3"
-            version: "1.2.20"
-            tags: "1.2 1.2-alpine 1 1-alpine"
+      matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
     env:
       DIRECTORY: ${{ matrix.directory }}
       VERSION: ${{ matrix.version }}
       TAGS: ${{ matrix.tags }}
     steps:
       - uses: actions/checkout@v6
-        with:
-          # Needed so the shortcut step can diff against the base ref / previous commit
-          fetch-depth: 0
-
-      - name: Shortcut build
-        id: shortcut
-        run: |
-          # If tag doesn't exist on Docker Hub, don't skip the build
-          curl -f "https://hub.docker.com/v2/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null || {
-            echo "${REPO_NAME}:${VERSION} doesn't exist, continuing build"
-            exit 0
-          }
-          # If the directory has changes, don't skip the build
-          if [[ "${GITHUB_EVENT_NAME}" != "pull_request" ]]; then
-            GIT_DIFF_BASE="HEAD~"
-          else
-            GIT_DIFF_BASE="origin/${GITHUB_BASE_REF}"
-          fi
-          DIRECTORY_MODIFIED=$(git diff "${GIT_DIFF_BASE}" --name-only | grep '/' | sed 's/\/.\+//g' | grep "${DIRECTORY}" || true)
-          if [[ "${DIRECTORY_MODIFIED}" != "" ]]; then
-            echo "Directory ${DIRECTORY_MODIFIED} has changes, continuing build"
-            exit 0
-          fi
-          # Otherwise skip the rest of this build
-          echo "Shortcutting the build of ${REPO_NAME}:${VERSION}"
-          echo "skip=true" >> "${GITHUB_OUTPUT}"
 
       - name: Set up Docker Buildx
-        if: steps.shortcut.outputs.skip != 'true'
         uses: docker/setup-buildx-action@v4
 
       - name: Compose image tags
         id: tags
-        if: steps.shortcut.outputs.skip != 'true'
         run: |
           {
             echo "tags<<EOF"
@@ -103,7 +131,6 @@ jobs:
           } >> "${GITHUB_OUTPUT}"
 
       - name: Build Docker image
-        if: steps.shortcut.outputs.skip != 'true'
         uses: docker/build-push-action@v7
         with:
           context: ${{ env.DIRECTORY }}
@@ -115,7 +142,6 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Test Docker image
-        if: steps.shortcut.outputs.skip != 'true'
         run: |
           curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
           chmod +x container-structure-test-linux-amd64
@@ -123,13 +149,11 @@ jobs:
           container-structure-test test --config "${DIRECTORY}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
 
       - name: Save Docker image
-        if: steps.shortcut.outputs.skip != 'true'
         run: |
           mkdir -p cache
           docker save --output "cache/${VERSION}.tar" "${REPO_NAME}"
 
       - name: Upload Docker image
-        if: steps.shortcut.outputs.skip != 'true'
         uses: actions/upload-artifact@v7
         with:
           name: image-${{ matrix.version }}
@@ -167,8 +191,9 @@ jobs:
             docker push "${TAG}"
           done
 
+  # Independent of the image build: the Docker Hub description tracks README.md, so
+  # it is updated on every master push even when no directory needed rebuilding.
   update-description:
-    needs: push
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
