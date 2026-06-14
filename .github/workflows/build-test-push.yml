@@ -14,6 +14,13 @@ on:
       - master
   pull_request:
 
+concurrency:
+  # Cancel superseded runs on a branch/PR when a new commit is pushed, but let master
+  # runs finish so an in-flight publish isn't interrupted (half-built manifest list or
+  # an unpublished directory).
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 env:
   REPO_NAME: emmercm/libtorrent
 
