@@ -44,8 +44,12 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.select.outputs.matrix }}
-      any: ${{ steps.select.outputs.any }}
+      # build job's matrix: cross product of selected directories and platforms
+      build_matrix: ${{ steps.select.outputs.build_matrix }}
+      # merge job's matrix: selected directories only (one manifest list per directory)
+      merge_matrix: ${{ steps.select.outputs.merge_matrix }}
+      # whether any directory was selected to build at all
+      has_builds: ${{ steps.select.outputs.has_builds }}
     steps:
       - uses: actions/checkout@v6
 
@@ -93,94 +97,134 @@ jobs:
             SELECTED=$(jq -c ". + [${ENTRY}]" <<< "${SELECTED}")
           done < <(jq -c '.[]' <<< "${CANDIDATES}")
 
-          echo "Selected build matrix: ${SELECTED}"
-          echo "matrix={\"include\":${SELECTED}}" >> "${GITHUB_OUTPUT}"
+          # Each platform builds on a runner of its own architecture (amd64 natively,
+          # arm64v8/armv7 on ARM hosts) to avoid cross-architecture QEMU emulation.
+          PLATFORMS='[
+            {"name": "linux/amd64",    "slug": "amd64",   "runner": "ubuntu-latest"},
+            {"name": "linux/arm64/v8", "slug": "arm64v8", "runner": "ubuntu-24.04-arm"},
+            {"name": "linux/arm/v7",   "slug": "armv7",   "runner": "ubuntu-24.04-arm"}
+          ]'
+
+          echo "Selected directories: ${SELECTED}"
+          echo "merge_matrix={\"include\":${SELECTED}}" >> "${GITHUB_OUTPUT}"
+          echo "build_matrix={\"entry\":${SELECTED},\"platform\":$(jq -c . <<< "${PLATFORMS}")}" >> "${GITHUB_OUTPUT}"
           if [[ "${SELECTED}" == "[]" ]]; then
-            echo "any=false" >> "${GITHUB_OUTPUT}"
+            echo "has_builds=false" >> "${GITHUB_OUTPUT}"
           else
-            echo "any=true" >> "${GITHUB_OUTPUT}"
+            echo "has_builds=true" >> "${GITHUB_OUTPUT}"
           fi
 
+  # One job per (directory, platform). Each builds and tests a single-platform image,
+  # then (on master) pushes it to the registry by digest only -- no tags. The tags are
+  # applied later by the merge job, so nothing usable is published until everything passes.
   build:
     needs:
       - lint
       - setup
-    if: needs.setup.outputs.any == 'true'
-    runs-on: ubuntu-latest
+    if: needs.setup.outputs.has_builds == 'true'
+    runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.setup.outputs.build_matrix) }}
     env:
-      DIRECTORY: ${{ matrix.directory }}
-      VERSION: ${{ matrix.version }}
-      TAGS: ${{ matrix.tags }}
+      DIRECTORY: ${{ matrix.entry.directory }}
+      VERSION: ${{ matrix.entry.version }}
+      PLATFORM: ${{ matrix.platform.name }}
+      # Cache scope keeps each directory+platform's layers separate
+      CACHE_SCOPE: ${{ matrix.entry.directory }}-${{ matrix.platform.slug }}
     steps:
       - uses: actions/checkout@v6
+
+      # Needed to run the armv7 (aarch32) image on the arm64 host during testing
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Compose image tags
-        id: tags
-        run: |
-          {
-            echo "tags<<EOF"
-            echo "${REPO_NAME}:${VERSION}"
-            echo "${REPO_NAME}:${VERSION}-alpine"
-            for TAG in ${TAGS}; do
-              echo "${REPO_NAME}:${TAG}"
-            done
-            echo "EOF"
-          } >> "${GITHUB_OUTPUT}"
-
-      - name: Build Docker image
+      - name: Build image for testing
         uses: docker/build-push-action@v7
         with:
           context: ${{ env.DIRECTORY }}
+          platforms: ${{ env.PLATFORM }}
           build-args: |
             VERSION=${{ env.VERSION }}
-          tags: ${{ steps.tags.outputs.tags }}
+          tags: ${{ env.REPO_NAME }}:${{ env.VERSION }}
           load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
+          cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
 
-      - name: Test Docker image
+      - name: Test image
         run: |
-          curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
-          chmod +x container-structure-test-linux-amd64
-          sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+          # container-structure-test runs on the host, so fetch the runner's architecture
+          case "${RUNNER_ARCH}" in
+            X64)   CST_ARCH=amd64 ;;
+            ARM64) CST_ARCH=arm64 ;;
+            *)     echo "Unsupported runner architecture: ${RUNNER_ARCH}" >&2; exit 1 ;;
+          esac
+          curl -LO "https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-${CST_ARCH}"
+          chmod +x "container-structure-test-linux-${CST_ARCH}"
+          sudo mv "container-structure-test-linux-${CST_ARCH}" /usr/local/bin/container-structure-test
           container-structure-test test --config "${DIRECTORY}/container-structure-test.yml" --image "${REPO_NAME}:${VERSION}"
 
-      - name: Save Docker image
-        run: |
-          mkdir -p cache
-          docker save --output "cache/${VERSION}.tar" "${REPO_NAME}"
+      - name: Log in to Docker Hub
+        if: github.ref == 'refs/heads/master'
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Upload Docker image
+      - name: Push image by digest
+        id: push
+        if: github.ref == 'refs/heads/master'
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ env.DIRECTORY }}
+          platforms: ${{ env.PLATFORM }}
+          build-args: |
+            VERSION=${{ env.VERSION }}
+          outputs: type=image,name=${{ env.REPO_NAME }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
+
+      - name: Export digest
+        if: github.ref == 'refs/heads/master'
+        run: |
+          mkdir -p digests
+          echo "${{ steps.push.outputs.digest }}" > "digests/${{ matrix.platform.slug }}"
+
+      - name: Upload digest
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v7
         with:
-          name: image-${{ matrix.version }}
-          path: cache/${{ matrix.version }}.tar
+          name: digests-${{ matrix.entry.directory }}-${{ matrix.platform.slug }}
+          path: digests/*
           if-no-files-found: error
 
-  push:
-    needs: build
+  # One job per directory: combine its per-platform digests into a single multi-arch
+  # manifest list and apply all of the directory's tags. Runs only after every build
+  # job succeeded, so a failure anywhere prevents any tags from being published.
+  merge:
+    needs:
+      - setup
+      - build
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.setup.outputs.merge_matrix) }}
+    env:
+      VERSION: ${{ matrix.version }}
+      TAGS: ${{ matrix.tags }}
     steps:
-      - name: Download Docker image(s)
+      - name: Download digests
         uses: actions/download-artifact@v8
         with:
-          pattern: image-*
-          path: cache
+          pattern: digests-${{ matrix.directory }}-*
+          path: digests
           merge-multiple: true
 
-      - name: Load Docker image(s) from artifacts
-        run: |
-          shopt -s nullglob
-          for TAR in cache/*.tar; do
-            docker load --input "${TAR}"
-          done
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
@@ -188,11 +232,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Publish Docker image(s)
+      - name: Create and push manifest list
         run: |
-          for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" "${REPO_NAME}"); do
-            docker push "${TAG}"
+          TAG_ARGS=()
+          for TAG in "${VERSION}" "${VERSION}-alpine" ${TAGS}; do
+            TAG_ARGS+=(--tag "${REPO_NAME}:${TAG}")
           done
+          SOURCES=()
+          for FILE in digests/*; do
+            SOURCES+=("${REPO_NAME}@$(cat "${FILE}")")
+          done
+          docker buildx imagetools create "${TAG_ARGS[@]}" "${SOURCES[@]}"
+
+      - name: Inspect manifest list
+        run: docker buildx imagetools inspect "${REPO_NAME}:${VERSION}"
 
   # Independent of the image build: the Docker Hub description tracks README.md, so
   # it is updated on every master push even when no directory needed rebuilding.
