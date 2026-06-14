@@ -97,12 +97,14 @@ jobs:
             SELECTED=$(jq -c ". + [${ENTRY}]" <<< "${SELECTED}")
           done < <(jq -c '.[]' <<< "${CANDIDATES}")
 
-          # Each platform builds on a runner of its own architecture (amd64 natively,
-          # arm64v8/armv7 on ARM hosts) to avoid cross-architecture QEMU emulation.
+          # Each platform builds on the closest runner architecture to minimize QEMU
+          # emulation: amd64 natively on amd64, and the arm variants on ARM hosts
+          # (arm64v8 natively; armv7/armv6 via aarch32 emulation).
           PLATFORMS='[
             {"name": "linux/amd64",    "slug": "amd64",   "runner": "ubuntu-latest"},
             {"name": "linux/arm64/v8", "slug": "arm64v8", "runner": "ubuntu-24.04-arm"},
-            {"name": "linux/arm/v7",   "slug": "armv7",   "runner": "ubuntu-24.04-arm"}
+            {"name": "linux/arm/v7",   "slug": "armv7",   "runner": "ubuntu-24.04-arm"},
+            {"name": "linux/arm/v6",   "slug": "armv6",   "runner": "ubuntu-24.04-arm"}
           ]'
 
           echo "Selected directories: ${SELECTED}"
@@ -135,7 +137,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      # Needed to run the armv7 (aarch32) image on the arm64 host during testing
+      # Needed to run the armv7/armv6 (aarch32) images on the arm64 host during testing
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
