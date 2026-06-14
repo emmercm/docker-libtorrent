@@ -1,8 +1,10 @@
 # Required repository secrets:
 #   DOCKERHUB_USERNAME - Docker Hub account username, used for `docker login` and pushes.
-#   DOCKERHUB_PASS     - Docker Hub password or access token for that account.
-#                        Note: docker-pushrm cannot use a 2FA-protected login, so this
-#                        must be a non-2FA account password or a Docker Hub access token.
+#   DOCKERHUB_TOKEN    - Docker Hub access token (NOT an account password) with
+#                        Read & Write scope. Create one at
+#                        https://hub.docker.com/settings/security. An access token is
+#                        required because account passwords protected by 2FA cannot be
+#                        used for pushes or description updates.
 
 name: build-test-push
 
@@ -29,9 +31,9 @@ jobs:
           - "1.0"
           - "0.16"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Run hadolint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3
         with:
           dockerfile: ${{ matrix.directory }}/Dockerfile
 
@@ -54,7 +56,7 @@ jobs:
       VERSION: ${{ matrix.version }}
       TAGS: ${{ matrix.tags }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Needed so the shortcut step can diff against the base ref / previous commit
           fetch-depth: 0
@@ -63,7 +65,7 @@ jobs:
         id: shortcut
         run: |
           # If tag doesn't exist on Docker Hub, don't skip the build
-          curl -f "https://index.docker.io/v1/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null || {
+          curl -f "https://hub.docker.com/v2/repositories/${REPO_NAME}/tags/${VERSION}" &> /dev/null || {
             echo "${REPO_NAME}:${VERSION} doesn't exist, continuing build"
             exit 0
           }
@@ -84,7 +86,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.shortcut.outputs.skip != 'true'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build Docker image
         if: steps.shortcut.outputs.skip != 'true'
@@ -117,7 +119,7 @@ jobs:
 
       - name: Upload Docker image
         if: steps.shortcut.outputs.skip != 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: image-${{ matrix.version }}
           path: cache/${{ matrix.version }}.tar
@@ -129,7 +131,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Docker image(s)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: image-*
           path: cache
@@ -142,9 +144,14 @@ jobs:
             docker load --input "${TAR}"
           done
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Publish Docker image(s)
         run: |
-          echo "${{ secrets.DOCKERHUB_PASS }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           for TAG in $(docker image ls --format "{{.Repository}}:{{.Tag}}" "${REPO_NAME}"); do
             docker push "${TAG}"
           done
@@ -154,16 +161,17 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install docker-pushrm
-        run: |
-          mkdir -p "$HOME/.docker/cli-plugins"
-          wget https://github.com/christian-korneck/docker-pushrm/releases/download/v1.5.0/docker-pushrm_linux_amd64 -O "$HOME/.docker/cli-plugins/docker-pushrm"
-          chmod +x "$HOME/.docker/cli-plugins/docker-pushrm"
+      - name: Read short description from README
+        id: readme
+        run: echo "short=$(grep '^\w' README.md | head -1)" >> "${GITHUB_OUTPUT}"
 
       - name: Update Docker Hub description
         # Can't use 2FA: https://github.com/docker/roadmap/issues/115
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASS }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker pushrm "${REPO_NAME}" --short "$(grep '^\w' README.md | head -1)"
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.REPO_NAME }}
+          short-description: ${{ steps.readme.outputs.short }}
