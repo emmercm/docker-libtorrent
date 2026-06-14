@@ -88,20 +88,31 @@ jobs:
         if: steps.shortcut.outputs.skip != 'true'
         uses: docker/setup-buildx-action@v4
 
-      - name: Build Docker image
+      - name: Compose image tags
+        id: tags
         if: steps.shortcut.outputs.skip != 'true'
         run: |
-          TAG_ARGS="--tag ${REPO_NAME}:${VERSION} --tag ${REPO_NAME}:${VERSION}-alpine"
-          for TAG in ${TAGS}; do
-            TAG_ARGS="${TAG_ARGS} --tag ${REPO_NAME}:${TAG}"
-          done
-          cd "${DIRECTORY}"
-          docker buildx build --progress=plain \
-            --build-arg VERSION="${VERSION}" \
-            --cache-from=type=gha \
-            --cache-to=type=gha,mode=max \
-            ${TAG_ARGS} \
-            --load .
+          {
+            echo "tags<<EOF"
+            echo "${REPO_NAME}:${VERSION}"
+            echo "${REPO_NAME}:${VERSION}-alpine"
+            for TAG in ${TAGS}; do
+              echo "${REPO_NAME}:${TAG}"
+            done
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Build Docker image
+        if: steps.shortcut.outputs.skip != 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ env.DIRECTORY }}
+          build-args: |
+            VERSION=${{ env.VERSION }}
+          tags: ${{ steps.tags.outputs.tags }}
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Test Docker image
         if: steps.shortcut.outputs.skip != 'true'
