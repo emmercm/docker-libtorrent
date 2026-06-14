@@ -102,7 +102,9 @@ jobs:
           fi
 
   build:
-    needs: [lint, setup]
+    needs:
+      - lint
+      - setup
     if: needs.setup.outputs.any == 'true'
     runs-on: ubuntu-latest
     strategy:
@@ -212,3 +214,18 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ env.REPO_NAME }}
           short-description: ${{ steps.readme.outputs.short }}
+
+  # !!! This check should be required by GitHub !!!
+  build-status-check:
+    if: always()
+    needs:
+      - lint
+      - setup
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: All checks passed
+        uses: re-actors/alls-green@release/v1
+        with:
+          allowed-skips: build
+          jobs: ${{ toJSON(needs) }}
