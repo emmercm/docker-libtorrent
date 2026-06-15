@@ -1,10 +1,11 @@
 # Required repository secrets:
 #   DOCKERHUB_USERNAME - Docker Hub account username, used for `docker login` and pushes.
-#   DOCKERHUB_TOKEN    - Docker Hub access token (NOT an account password) with
-#                        Read & Write scope. Create one at
-#                        https://hub.docker.com/settings/security. An access token is
-#                        required because account passwords protected by 2FA cannot be
-#                        used for pushes or description updates.
+#   DOCKERHUB_TOKEN    - Docker Hub access token (NOT an account password; a 2FA-protected
+#                        password cannot be used) with "Read, Write, Delete" scope. Pushing
+#                        images only needs Read & Write, but peter-evans/dockerhub-description
+#                        requires the Delete scope as well -- a Read & Write token returns
+#                        403 Forbidden when updating the description. Create one at
+#                        https://hub.docker.com/settings/security.
 
 name: build-test-push
 
