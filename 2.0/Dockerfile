@@ -1,7 +1,7 @@
 # Instructions on building libtorrent:
 #   https://github.com/arvidn/libtorrent/blob/RC_2_0/docs/building.rst
 
-FROM alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+FROM alpine:3.24.0@sha256:a2d49ea686c2adfe3c992e47dc3b5e7fa6e6b5055609400dc2acaeb241c829f4
 
 ARG VERSION=2.0.[0-9]\\+
 
@@ -13,7 +13,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
     apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
     # Checkout from source
     cd "$(mktemp -d)" && \
-    git clone --branch "$( \ 
+    git clone --branch "$( \
         wget -qO - https://api.github.com/repos/arvidn/libtorrent/tags?per_page=100 | jq -r '.[].name' | \
         awk '{print $1" "$1}' | \
         # Get rid of prefixes

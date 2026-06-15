@@ -1,7 +1,7 @@
 # Instructions on building libtorrent:
 #   https://github.com/arvidn/libtorrent/blob/RC_1_2/docs/building.rst
 
-FROM alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+FROM alpine:3.24.0@sha256:a2d49ea686c2adfe3c992e47dc3b5e7fa6e6b5055609400dc2acaeb241c829f4
 
 ARG VERSION=1.2.[0-9]\\+
 
@@ -13,7 +13,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
     apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
     # Checkout from source
     cd "$(mktemp -d)" && \
-    git clone --branch "$( \ 
+    git clone --branch "$( \
         wget -qO - https://api.github.com/repos/arvidn/libtorrent/tags?per_page=100 | jq -r '.[].name' | \
         awk '{print $1" "$1}' | \
         # Get rid of prefixes
@@ -33,17 +33,35 @@ RUN apk --update add --no-cache                              boost-python3 boost
     cd libtorrent && \
     git clean --force && \
     git submodule update --depth=1 --init --recursive && \
-    # Run b2
-    PREFIX=/usr && \
-    export BOOST_BUILD_PATH=$(dirname $(find ${PREFIX} -type f -name bootstrap.jam | head -1)) && \
-    export BOOST_ROOT="" && \
-    BUILD_CONFIG="release cxxstd=14 crypto=openssl warnings=off address-model=32 -j$(nproc)" && \
-    b2 ${BUILD_CONFIG} link=shared install --prefix=${PREFIX} && \
-    b2 ${BUILD_CONFIG} link=static install --prefix=${PREFIX} && \
-    cd bindings/python && \
-    PYTHON_MAJOR_MINOR="$(python3 --version 2>&1 | sed 's/\(python \)\?\([0-9]\+\.[0-9]\+\)\(\.[0-9]\+\)\?/\2/i')" && \
-    echo "using python : ${PYTHON_MAJOR_MINOR} : $(command -v python3) : /usr/include/python${PYTHON_MAJOR_MINOR} : /usr/lib/python${PYTHON_MAJOR_MINOR} ;" > ~/user-config.jam && \
-    b2 ${BUILD_CONFIG} install_module python-install-scope=system && \
+    # Build shared libraries
+    mkdir build-shared && \
+    cd build-shared && \
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        # https://github.com/arvidn/libtorrent/blob/RC_1_2/docs/building.rst#building-with-cmake
+        -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_STANDARD=14 \
+		-Dpython-bindings=ON \
+		-Dpython-install-system-dir=ON \
+        .. && \
+    ninja "-j$(nproc)" && \
+    ninja install && \
+    cd .. && \
+    # Build static libraries
+    mkdir build-static && \
+    cd build-static && \
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        # https://github.com/arvidn/libtorrent/blob/RC_1_2/docs/building.rst#building-with-cmake
+        -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_STANDARD=14 \
+		-DBUILD_SHARED_LIBS=OFF \
+        .. && \
+    ninja "-j$(nproc)" && \
+    ninja install && \
+    cd .. && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \
