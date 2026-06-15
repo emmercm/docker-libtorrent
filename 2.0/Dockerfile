@@ -13,7 +13,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
     apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
     # Checkout from source
     cd "$(mktemp -d)" && \
-    git clone --branch "$( \ 
+    git clone --branch "$( \
         wget -qO - https://api.github.com/repos/arvidn/libtorrent/tags?per_page=100 | jq -r '.[].name' | \
         awk '{print $1" "$1}' | \
         # Get rid of prefixes
