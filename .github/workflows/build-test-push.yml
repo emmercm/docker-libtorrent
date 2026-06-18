@@ -39,7 +39,7 @@ jobs:
           - "1.2-py3"
           - "2.0"
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Run hadolint
         # Pinned to a full version: hadolint-action does not publish a moving major tag
         uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
@@ -59,7 +59,7 @@ jobs:
       # whether any directory was selected to build at all
       has_builds: ${{ steps.select.outputs.has_builds }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Detect changed directories
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4
@@ -143,7 +143,7 @@ jobs:
       # Cache scope keeps each directory+platform's layers separate
       CACHE_SCOPE: ${{ matrix.entry.directory }}-${{ matrix.platform.slug }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       # Needed to run the armv7/armv6 (aarch32) images on the arm64 host during testing
       - name: Set up QEMU
@@ -263,7 +263,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Read short description from README
         id: readme
