@@ -31,7 +31,7 @@ commandTests:
   # Python tests (https://dev.deluge-torrent.org/wiki/Building/libtorrent#UbuntuDebian)
   - name: "Python 3"
     command: "python3"
-    args: ["-c", "import libtorrent; print(libtorrent.version)"]
+    args: ["-c", "import libtorrent; print(libtorrent.__version__)"]
     expectedOutput: ["2.1"]
     excludedError: [".+"]
     exitCode: 0

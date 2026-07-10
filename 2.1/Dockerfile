@@ -1,5 +1,5 @@
 # Instructions on building libtorrent:
-#   https://github.com/arvidn/libtorrent/blob/RC_2_0/docs/building.rst
+#   https://github.com/arvidn/libtorrent/blob/RC_2_1/docs/building.rst
 
 FROM alpine:3.24.0@sha256:a2d49ea686c2adfe3c992e47dc3b5e7fa6e6b5055609400dc2acaeb241c829f4
 
@@ -9,8 +9,8 @@ SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2086
-RUN apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
-    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
+RUN apk --update add --no-cache                              boost-python3 libgcc libstdc++ openssl python3 && \
+    apk --update add --no-cache --virtual build-dependencies boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
     # Checkout from source
     cd "$(mktemp -d)" && \
     git clone --branch "$( \
@@ -27,6 +27,8 @@ RUN apk --update add --no-cache                              boost-python3 boost
         # Get the right version
         sort --version-sort --key=1,1 | \
         grep "${VERSION}" | \
+        # Ignore pre-releases (release candidates, betas, etc.)
+        grep -viE -- '-(rc|alpha|beta)' | \
         tail -1 | \
         awk '{print $2}' \
     )" --depth 1 https://github.com/arvidn/libtorrent.git && \
@@ -38,10 +40,11 @@ RUN apk --update add --no-cache                              boost-python3 boost
     cd build-shared && \
     cmake \
         -DCMAKE_INSTALL_PREFIX=/usr \
-        # https://github.com/arvidn/libtorrent/blob/RC_2_0/docs/building.rst#building-with-cmake
+        # https://github.com/arvidn/libtorrent/blob/RC_2_1/docs/building.rst#building-with-cmake
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_CXX_STANDARD=17 \
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-Dpython-bindings=ON \
 		-Dpython-egg-info=ON \
 		-Dpython-install-system-dir=ON \
@@ -54,10 +57,11 @@ RUN apk --update add --no-cache                              boost-python3 boost
     cd build-static && \
     cmake \
         -DCMAKE_INSTALL_PREFIX=/usr \
-        # https://github.com/arvidn/libtorrent/blob/RC_2_0/docs/building.rst#building-with-cmake
+        # https://github.com/arvidn/libtorrent/blob/RC_2_1/docs/building.rst#building-with-cmake
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_CXX_STANDARD=17 \
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-DBUILD_SHARED_LIBS=OFF \
         .. && \
     ninja "-j$(nproc)" && \
