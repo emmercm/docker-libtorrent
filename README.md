@@ -1,3 +1,5 @@
+[![libtorrent logo](https://raw.githubusercontent.com/emmercm/docker-libtorrent/refs/heads/assets/libtorrent.png)](https://www.libtorrent.org/)
+
 [![](https://badgen.net/badge/emmercm/libtorrent/blue?icon=docker)](https://hub.docker.com/r/emmercm/libtorrent)
 [![](https://badgen.net/docker/pulls/emmercm/libtorrent?icon=docker&label=pulls)](https://hub.docker.com/r/emmercm/libtorrent)
 [![](https://badgen.net/docker/stars/emmercm/libtorrent?icon=docker&label=stars)](https://hub.docker.com/r/emmercm/libtorrent)
@@ -42,7 +44,7 @@ These images contain 4 main things:
 
 # Why full images?
 
-As of writing the `libtorrent`/`libtorrent-dev` in the Alpine main repository is many years out of date. It can be time-consuming or difficult to compile libtorrent so this saves the end user time and headache.
+As of writing, the `libtorrent`/`libtorrent-dev` in the Alpine main repository is many years out of date. It can be time-consuming or difficult to compile libtorrent so this saves the end user time and headache.
 
 # How to use these images
 
