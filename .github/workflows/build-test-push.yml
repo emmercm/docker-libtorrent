@@ -38,6 +38,7 @@ jobs:
           - "1.2-py2"
           - "1.2-py3"
           - "2.0"
+          - "2.1"
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Run hadolint
@@ -72,6 +73,7 @@ jobs:
             "1.2-py2": "1.2-py2/**"
             "1.2-py3": "1.2-py3/**"
             "2.0": "2.0/**"
+            "2.1": "2.1/**"
 
       - name: Select directories to build
         id: select
@@ -87,7 +89,8 @@ jobs:
               {"directory": "1.1",     "version": "1.1.14",  "tags": "1.1 1.1-alpine"},
               {"directory": "1.2-py2", "version": "1.2.11",  "tags": ""},
               {"directory": "1.2-py3", "version": "1.2.20",  "tags": "1.2 1.2-alpine 1 1-alpine"},
-              {"directory": "2.0",     "version": "2.0.13",  "tags": "2.0 2.0-alpine 2 2-alpine latest"}
+              {"directory": "2.0",     "version": "2.0.13",  "tags": "2.0 2.0-alpine"}
+              {"directory": "2.1",     "version": "2.1.0",   "tags": "2.1 2.1-alpine 2 2-alpine latest"}
             ]
         run: |
           SELECTED='[]'
