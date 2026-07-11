@@ -43,7 +43,7 @@ RUN apk --update add --no-cache                              boost-python3 libgc
         # https://github.com/arvidn/libtorrent/blob/RC_2_1/docs/building.rst#building-with-cmake
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_CXX_STANDARD=17 \
+		-DCMAKE_CXX_STANDARD=20 \
         -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-Dpython-bindings=ON \
 		-Dpython-egg-info=ON \
@@ -60,7 +60,7 @@ RUN apk --update add --no-cache                              boost-python3 libgc
         # https://github.com/arvidn/libtorrent/blob/RC_2_1/docs/building.rst#building-with-cmake
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_CXX_STANDARD=17 \
+		-DCMAKE_CXX_STANDARD=20 \
         -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-DBUILD_SHARED_LIBS=OFF \
         .. && \
