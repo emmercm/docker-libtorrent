@@ -1,0 +1,11 @@
+# Repo strucutre
+.circleci/
+.git/
+LICENSE*
+README*
+*.json
+*.yaml
+
+# Docker files
+.dockerignore
+Dockerfile
