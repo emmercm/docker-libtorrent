@@ -9,8 +9,8 @@ SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
 # Build libtorrent-rasterbar-dev
 # hadolint ignore=DL3003,DL3018,SC2086
-RUN apk --update add --no-cache                              boost-python3 boost-system libgcc libstdc++ openssl python3 && \
-    apk --update add --no-cache --virtual build-dependencies boost-build boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
+RUN apk --update add --no-cache                              boost-python3 libgcc libstdc++ openssl python3 && \
+    apk --update add --no-cache --virtual build-dependencies boost-dev cmake coreutils g++ gcc git jq py3-setuptools python3-dev openssl-dev samurai && \
     # Checkout from source
     cd "$(mktemp -d)" && \
     git clone --branch "$( \
@@ -27,6 +27,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
         # Get the right version
         sort --version-sort --key=1,1 | \
         grep "${VERSION}" | \
+        grep -viE -- '-(rc|alpha|beta)' | \
         tail -1 | \
         awk '{print $2}' \
     )" --depth 1 https://github.com/arvidn/libtorrent.git && \
@@ -42,6 +43,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_CXX_STANDARD=17 \
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-Dpython-bindings=ON \
 		-Dpython-egg-info=ON \
 		-Dpython-install-system-dir=ON \
@@ -58,6 +60,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_CXX_STANDARD=17 \
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-DBUILD_SHARED_LIBS=OFF \
         .. && \
     ninja "-j$(nproc)" && \
