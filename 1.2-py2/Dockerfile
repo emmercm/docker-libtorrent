@@ -31,6 +31,7 @@ RUN apk --update add --no-cache                              boost-system libgcc
         # Get the right version
         sort --version-sort --key=1,1 | \
         grep "${VERSION}" | \
+        grep -viE -- '-(rc|alpha|beta)' | \
         tail -1 | \
         awk '{print $2}' \
     )" --depth 1 https://github.com/arvidn/libtorrent.git && \

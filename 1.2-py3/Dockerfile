@@ -27,6 +27,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
         # Get the right version
         sort --version-sort --key=1,1 | \
         grep "${VERSION}" | \
+        grep -viE -- '-(rc|alpha|beta)' | \
         tail -1 | \
         awk '{print $2}' \
     )" --depth 1 https://github.com/arvidn/libtorrent.git && \
@@ -42,6 +43,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_CXX_STANDARD=14 \
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-Dpython-bindings=ON \
 		-Dpython-install-system-dir=ON \
         .. && \
@@ -57,6 +59,7 @@ RUN apk --update add --no-cache                              boost-python3 boost
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_CXX_STANDARD=14 \
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-DBUILD_SHARED_LIBS=OFF \
         .. && \
     ninja "-j$(nproc)" && \
