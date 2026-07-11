@@ -65,6 +65,8 @@ RUN apk --update add --no-cache                              boost-python3 boost
     ninja "-j$(nproc)" && \
     ninja install && \
     cd .. && \
+    # Strip leaked CMake imported-target names from the generated pkg-config file
+    sed -i 's/ *-lIconv::Iconv//g' /usr/lib/pkgconfig/libtorrent-rasterbar.pc && \
     # Remove temp files
     cd && \
     apk del --purge build-dependencies && \

@@ -32,3 +32,5 @@ fileContentTests:
   - name: "pkgconfig"
     path: "/usr/lib/pkgconfig/libtorrent-rasterbar.pc"
     expectedContents: ["Libs:.*-ltorrent-rasterbar"]
+    # No unresolved CMake imported-target names (e.g. -lIconv::Iconv) should leak into the Libs line
+    excludedContents: ["-l\\S*::"]
