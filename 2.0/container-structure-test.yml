@@ -1,7 +1,7 @@
 schemaVersion: 2.0.0
 
 fileExistenceTests:
-  # libtorrent files
+  # libtorrent-rasterbar files
   - name: "libtorrent-rasterbar.a"
     path: "/usr/lib/libtorrent-rasterbar.a"
     shouldExist: true
@@ -14,11 +14,17 @@ fileExistenceTests:
     path: "/usr/lib/libtorrent-rasterbar.so.2.0"
     shouldExist: true
     permissions: "Lrwxrwxrwx"
+  - name: "libtorrent.hpp"
+    path: "/usr/include/libtorrent/libtorrent.hpp"
+    shouldExist: true
   # CMake files (required for qBittorrent v5.0)
   - name: "LibtorrentRasterbarConfig.cmake"
     path: "/usr/lib/cmake/LibtorrentRasterbar/LibtorrentRasterbarConfig.cmake"
     shouldExist: true
     permissions: "-rw-r--r--"
+  - name: "FindLibtorrentRasterbar.cmake"
+    path: "/usr/share/cmake/Modules/FindLibtorrentRasterbar.cmake"
+    shouldExist: true
 
 commandTests:
   - name: "pkgconfig"
@@ -36,8 +42,10 @@ commandTests:
     excludedError: [".+"]
     exitCode: 0
 
-# https://github.com/arvidn/libtorrent/issues/5865
 fileContentTests:
   - name: "pkgconfig"
     path: "/usr/lib/pkgconfig/libtorrent-rasterbar.pc"
+    # https://github.com/arvidn/libtorrent/issues/5865
     expectedContents: ["Libs:.*-ltorrent-rasterbar"]
+    # No unresolved CMake imported-target names (e.g. -lIconv::Iconv) should leak into the Libs line
+    excludedContents: ["-l\\S*::"]
