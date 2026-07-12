@@ -10,6 +10,13 @@ fileExistenceTests:
     path: "/usr/lib/libtorrent-rasterbar.so"
     shouldExist: true
     permissions: "Lrwxrwxrwx"
+  - name: "libtorrent-rasterbar.so.8"
+    path: "/usr/lib/libtorrent-rasterbar.so.8"
+    shouldExist: true
+    permissions: "Lrwxrwxrwx"
+  - name: "session.hpp"
+    path: "/usr/include/libtorrent/session.hpp"
+    shouldExist: true
 
 commandTests:
   - name: "pkgconfig"

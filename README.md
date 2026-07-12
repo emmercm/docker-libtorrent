@@ -70,8 +70,8 @@ The default image variant, these images are based on [the `alpine` official imag
 
 Some of these builds use an outdated version of Alpine on purpose:
 
-- v0.16 and v1.0 are locked to Alpine v3.7 (2017) because support for [`boost-dev`](https://pkgs.alpinelinux.org/packages?name=boost-dev&branch=edge) v1.66+ wasn't added until [`libtorrent` v1.1.6](https://github.com/arvidn/libtorrent/releases/tag/libtorrent-1_1_6).
-- v1.1 and v1.2.11 are locked to Alpine v3.11 (2020) because support for [`boost-python2`](https://pkgs.alpinelinux.org/packages?name=boost-python2&branch=v3.11) was [removed in Alpine v3.12](https://git.alpinelinux.org/aports/commit/main/boost/APKBUILD?id=c7eee7c57fbcbe012646766604d9bcd89368d6e4).
+- v0.16 and v1.0 are locked to Alpine v3.7 (2017-2019) because support for [`boost-dev`](https://pkgs.alpinelinux.org/packages?name=boost-dev&branch=edge) v1.66+ wasn't added until [`libtorrent` v1.1.6](https://github.com/arvidn/libtorrent/releases/tag/libtorrent-1_1_6).
+- v1.1 and v1.2.11 are locked to Alpine v3.11 (2019-2021) because support for [`boost-python2`](https://pkgs.alpinelinux.org/packages?name=boost-python2&branch=v3.11) was [removed in Alpine v3.12](https://git.alpinelinux.org/aports/commit/main/boost/APKBUILD?id=c7eee7c57fbcbe012646766604d9bcd89368d6e4).
 
 # License
 
