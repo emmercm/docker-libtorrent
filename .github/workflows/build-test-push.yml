@@ -158,7 +158,7 @@ jobs:
               else
                 MISSING=$(comm -23 <(printf '%s\n' "${EXPECTED}" | canonical) <(printf '%s\n' "${PUBLISHED}"))
                 if [[ -n "${MISSING}" ]]; then
-                  echo "${DIRECTORY}: ${REPO_NAME}:${VERSION} missing arches, building:"
+                  echo "${DIRECTORY}: ${REPO_NAME}:${VERSION} building; architectures missing:"
                   printf '%s\n' "${MISSING}" | sed 's/^/  /'
                 else
                   echo "${DIRECTORY}: unchanged and all arches published, skipping"
