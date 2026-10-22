@@ -1,7 +1,7 @@
 # Instructions on building libtorrent:
 #   https://github.com/arvidn/libtorrent/blob/RC_1_2/docs/building.rst
 
-FROM alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6 AS build
+FROM alpine:3.24.3@sha256:1b7232cda4ca3dc20b5d1247bdc9bfb631f2661d15d323bdd6fccc035ed1a9e7 AS build
 
 ARG VERSION=1.2.[0-9]\\+
 
@@ -72,7 +72,7 @@ RUN cd libtorrent && \
     # Strip leaked CMake imported-target names from the generated pkg-config file
     sed -i 's/ *-lIconv::Iconv//g' /staging/usr/lib/pkgconfig/libtorrent-rasterbar.pc
 
-FROM alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+FROM alpine:3.24.3@sha256:1b7232cda4ca3dc20b5d1247bdc9bfb631f2661d15d323bdd6fccc035ed1a9e7
 
 SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
 
